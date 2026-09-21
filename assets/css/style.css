@@ -1,11 +1,10 @@
 .coc-container {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    margin: 20px 0;
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .coc-form {
@@ -79,21 +78,7 @@
     min-width: 0;
 }
 
-.coc-map-container, .coc-manual-container {
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    padding: 15px;
-    min-width: 0;
-    box-sizing: border-box;
-}
 
-.coc-map-container h3, .coc-manual-container h3 {
-    margin-top: 0;
-    font-size: 16px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-}
 
 .coc-cytoscape-view {
     width: 100%;

@@ -90,14 +90,8 @@ function caverns_of_carnage_render_block( $attributes ) {
         <div class="coc-output" style="display:none;">
             <div class="coc-level-tabs"></div>
             <div class="coc-level-content">
-                <div class="coc-map-container">
-                    <h3><?php esc_html_e( 'Dungeon Map', 'caverns-of-carnage' ); ?></h3>
-                    <div class="coc-cytoscape-view" style="width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid #c3c4c7; background: #fafafa; border-radius: 4px;"></div>
-                </div>
-                <div class="coc-manual-container">
-                    <h3><?php esc_html_e( 'Adventure Manual', 'caverns-of-carnage' ); ?></h3>
-                    <div class="coc-manual-text"></div>
-                </div>
+                <div class="coc-cytoscape-view" style="width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid #c3c4c7; background: #fafafa; border-radius: 4px;"></div>
+                <div class="coc-manual-text"></div>
             </div>
         </div>
     </div>
