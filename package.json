@@ -18,8 +18,7 @@
   "author": "Leon Atkinson",
   "license": "MIT",
   "dependencies": {
-    "cytoscape": "^3.28.1",
-    "cytoscape-fcose": "^2.2.0"
+    "cytoscape": "^3.28.1"
   },
   "devDependencies": {
     "webpack": "^5.89.0",

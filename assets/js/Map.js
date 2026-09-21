@@ -1,12 +1,5 @@
 import cytoscape from 'cytoscape';
-import fcose from 'cytoscape-fcose';
 import { Passage } from './Passage.js';
-
-try {
-    cytoscape.use(fcose);
-} catch (e) {
-    // Fallback if already registered
-}
 
 export class Map {
     static render(container) {
@@ -41,6 +34,7 @@ export class Map {
                     source: 'Room' + passage.start,
                     target: 'Room' + passage.end,
                     label: passage.length + '′',
+                    length: passage.length,
                     startArrow: Passage.getArrow(passage.startDoor),
                     endArrow: Passage.getArrow(passage.endDoor),
                     color: edgeColor
@@ -92,22 +86,20 @@ export class Map {
                         'curve-style': 'bezier'
                     }
                 }
-            ],
-            layout: {
-                name: 'fcose',
-                animate: false,
-                nodeRepulsion: 45000,
-                idealEdgeLength: 250,
-                uniformNodeDimensions: false,
-                nodeDimensionsIncludeLabels: false,
-                fit: true,
-                padding: 10
-            }
+            ]
         });
 
         cy.resize();
-        cy.fit(null, 30);
-        cy.center();
+        cy.layout({
+            name: 'breadthfirst',
+            directed: false,
+            roots: '#Room0',
+            spacingFactor: 1.8,
+            avoidOverlap: true,
+            padding: 24,
+            fit: true,
+            nodeDimensionsIncludeLabels: true
+        }).run();
 
         return cy;
     }
