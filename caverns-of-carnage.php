@@ -83,8 +83,8 @@ function caverns_of_carnage_render_block( $attributes ) {
                 <input type="number" name="numLevels" min="1" max="10" value="<?php echo esc_attr( $num_levels ); ?>" class="coc-num-levels" />
             </div>
             <div class="coc-actions">
-                <button type="button" class="button button-primary wp-element-button coc-generate-btn"><?php esc_html_e( 'Generate Dungeon', 'caverns-of-carnage' ); ?></button>
-                <button type="button" class="button button-secondary wp-element-button coc-download-btn" style="display:none; margin-left: 10px;"><?php esc_html_e( 'Download Adventure Document (.doc)', 'caverns-of-carnage' ); ?></button>
+                <button type="button" class="button button-primary wp-element-button coc-generate-btn"><?php esc_html_e( 'Generate', 'caverns-of-carnage' ); ?></button>
+                <button type="button" class="button button-secondary wp-element-button coc-download-btn" style="display:none; margin-left: 10px;"><?php esc_html_e( 'Download', 'caverns-of-carnage' ); ?></button>
             </div>
         </form>
         <div class="coc-output" style="display:none;">
