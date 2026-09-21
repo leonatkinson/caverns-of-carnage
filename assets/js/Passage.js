@@ -33,6 +33,13 @@ export class Passage {
         p.startDoor = Passage.getDoor(cavern);
         p.endDoor = Passage.getDoor(cavern);
 
+        if (p.startDoor === 'secret door' || p.endDoor === 'secret door') {
+            if (Math.random() < 0.9) {
+                p.startDoor = 'secret door';
+                p.endDoor = 'secret door';
+            }
+        }
+
         p.startLocation = Passage.getLocation(cavern);
         p.endLocation = Passage.getLocation(cavern);
 
