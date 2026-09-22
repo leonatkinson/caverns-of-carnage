@@ -82,7 +82,7 @@ export class Map {
                         'target-arrow-shape': 'data(endArrow)',
                         'source-arrow-color': 'data(color)',
                         'target-arrow-color': 'data(color)',
-                        'arrow-scale': 1.2,
+                        'arrow-scale': 6,
                         'curve-style': 'bezier'
                     }
                 }
