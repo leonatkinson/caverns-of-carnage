@@ -17,6 +17,10 @@ export class Room {
         this.trap = '';
         this.monsters = [];
         this.contents = [];
+        this.hasStairsDown = false;
+        this.stairsDownSentence = '';
+        this.hasStairsUp = false;
+        this.stairsUpSentence = '';
     }
 
     static generate(level, cavern) {
@@ -36,8 +40,16 @@ export class Room {
 
         r.description = 'The room is ' + r.width + '&prime;&times;' + r.depth + '&prime; with a ' + r.height + '&prime; ceiling.';
 
-        if (cavern.p(10)) r.description += ' ' + Room.stairs('down', cavern);
-        if (cavern.p(10)) r.description += ' ' + Room.stairs('up', cavern);
+        if (cavern.p(10)) {
+            r.hasStairsDown = true;
+            r.stairsDownSentence = Room.stairs('down', cavern);
+            r.description += ' ' + r.stairsDownSentence;
+        }
+        if (cavern.p(10)) {
+            r.hasStairsUp = true;
+            r.stairsUpSentence = Room.stairs('up', cavern);
+            r.description += ' ' + r.stairsUpSentence;
+        }
 
         const roll = Math.floor(Math.random() * 20) + 1;
         if (roll <= 12) {

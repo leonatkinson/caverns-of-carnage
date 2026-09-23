@@ -41,15 +41,6 @@ window.initCavernsOfCarnage = function(container) {
             const itemListCopy = JSON.parse(JSON.stringify(window.cocItemList));
             const wanderingMonstersCopy = [...Cavern.wanderingMonsters];
 
-            window.cocRoomList = roomListCopy;
-            window.cocPassageList = passageListCopy;
-            window.cocMonsterList = monsterListCopy;
-            window.cocItemList = itemListCopy;
-            Cavern.wanderingMonsters = wanderingMonstersCopy;
-
-            const cy = Map.render(tempContainer);
-            const mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
-
             allGeneratedLevels.push({
                 level: currentLevelNum,
                 roomList: roomListCopy,
@@ -57,9 +48,51 @@ window.initCavernsOfCarnage = function(container) {
                 monsterList: monsterListCopy,
                 itemList: itemListCopy,
                 wanderingMonsters: wanderingMonstersCopy,
-                mapPng: mapPng
+                mapPng: ''
             });
         }
+
+        if (allGeneratedLevels.length > 1) {
+            allGeneratedLevels.forEach(lvlData => {
+                lvlData.roomList.forEach(room => {
+                    if (room.hasStairsDown && room.stairsDownSentence) {
+                        const deeperLevels = allGeneratedLevels.filter(l => l.level > lvlData.level);
+                        if (deeperLevels.length > 0) {
+                            const targetLevelObj = deeperLevels[Math.floor(Math.random() * deeperLevels.length)];
+                            const targetRoom = targetLevelObj.roomList[Math.floor(Math.random() * targetLevelObj.roomList.length)];
+
+                            const downText = "Stairs going down to room " + (targetRoom.id + 1) + " on level " + targetLevelObj.level + ".";
+                            if (room.description.includes(room.stairsDownSentence)) {
+                                room.description = room.description.replace(room.stairsDownSentence, downText);
+                            } else {
+                                room.description += ' ' + downText;
+                            }
+                            room.stairsDownSentence = downText;
+
+                            const upText = "Stairs going up to room " + (room.id + 1) + " on level " + lvlData.level + ".";
+                            if (targetRoom.stairsUpSentence && targetRoom.description.includes(targetRoom.stairsUpSentence)) {
+                                targetRoom.description = targetRoom.description.replace(targetRoom.stairsUpSentence, upText);
+                            } else {
+                                targetRoom.description += ' ' + upText;
+                                targetRoom.hasStairsUp = true;
+                            }
+                            targetRoom.stairsUpSentence = upText;
+                        }
+                    }
+                });
+            });
+        }
+
+        allGeneratedLevels.forEach(lvlData => {
+            window.cocRoomList = lvlData.roomList;
+            window.cocPassageList = lvlData.passageList;
+            window.cocMonsterList = lvlData.monsterList;
+            window.cocItemList = lvlData.itemList;
+            Cavern.wanderingMonsters = lvlData.wanderingMonsters;
+
+            const cy = Map.render(tempContainer);
+            lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+        });
 
         document.body.removeChild(tempContainer);
 
