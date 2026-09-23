@@ -188,10 +188,69 @@ export class Monster {
 
     static makeMonsterByLevel(roomId = null, level = 1, roomList, cavern) {
         const maxHD = level + Math.floor(Math.sqrt(level));
-        let m;
-        do {
-            m = Monster.roster[Math.floor(Math.random() * Monster.roster.length)];
-        } while (parseInt(m[0], 10) > maxHD);
+        let m = null;
+
+        if (roomId !== null) {
+            const useExistingType = cavern && typeof cavern.p === 'function' ? cavern.p(25) : (Math.random() < 0.25);
+            if (useExistingType) {
+                const candidateNames = [];
+                if (roomList) {
+                    roomList.forEach(r => {
+                        if (r.id === roomId) return;
+                        if (r.monsters && r.monsters.length > 0) {
+                            r.monsters.forEach(mId => {
+                                const monsterObj = window.cocMonsterList ? window.cocMonsterList[mId] : null;
+                                if (monsterObj && monsterObj.name) {
+                                    candidateNames.push(monsterObj.name);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                if (window.cocGeneratedLevels && Array.isArray(window.cocGeneratedLevels)) {
+                    window.cocGeneratedLevels.forEach(lvl => {
+                        if (lvl.level < level) {
+                            if (lvl.roomList) {
+                                lvl.roomList.forEach(r => {
+                                    if (r.monsters && r.monsters.length > 0) {
+                                        r.monsters.forEach(mId => {
+                                            const monsterObj = lvl.monsterList ? lvl.monsterList[mId] : null;
+                                            if (monsterObj && monsterObj.name) {
+                                                candidateNames.push(monsterObj.name);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+
+                const validCandidates = [];
+                candidateNames.forEach(name => {
+                    const rosterEntry = Monster.roster.find(entry => entry[1] === name);
+                    if (rosterEntry && parseInt(rosterEntry[0], 10) <= maxHD) {
+                        if (!validCandidates.includes(rosterEntry)) {
+                            validCandidates.push(rosterEntry);
+                        }
+                    }
+                });
+
+                if (validCandidates.length > 0) {
+                    const chooseFn = cavern && typeof cavern.chooseOne === 'function' 
+                        ? cavern.chooseOne.bind(cavern) 
+                        : (choices => choices[Math.floor(Math.random() * choices.length)]);
+                    m = chooseFn(validCandidates);
+                }
+            }
+        }
+
+        if (!m) {
+            do {
+                m = Monster.roster[Math.floor(Math.random() * Monster.roster.length)];
+            } while (parseInt(m[0], 10) > maxHD);
+        }
 
         const monster = Monster.generate(roomId, roomList);
         monster.name = m[1];

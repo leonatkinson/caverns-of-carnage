@@ -156,6 +156,16 @@ export class Cavern {
                 Cavern.wanderingMonsters.push(this.getEvent());
             }
         }
+
+        if (!window.cocGeneratedLevels) {
+            window.cocGeneratedLevels = [];
+        }
+        window.cocGeneratedLevels = window.cocGeneratedLevels.filter(l => l.level < level);
+        window.cocGeneratedLevels.push({
+            level: level,
+            roomList: JSON.parse(JSON.stringify(window.cocRoomList)),
+            monsterList: JSON.parse(JSON.stringify(window.cocMonsterList))
+        });
     }
 
     getEvent() {
