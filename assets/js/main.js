@@ -2,9 +2,14 @@ import { Cavern } from './Cavern.js';
 import { Map } from './Map.js';
 import { Manual } from './Manual.js';
 
+/**
+ * Initializes the Caverns of Carnage dungeon generator block interface.
+ * @param {HTMLElement} container - The container element for the generator block.
+ */
 window.initCavernsOfCarnage = function(container) {
     if (!container) return;
 
+    // Query UI elements within the generator container
     const generateBtn = container.querySelector('.coc-generate-btn');
     const downloadBtn = container.querySelector('.coc-download-btn');
     const outputDiv = container.querySelector('.coc-output');
@@ -16,13 +21,18 @@ window.initCavernsOfCarnage = function(container) {
 
     let allGeneratedLevels = [];
 
+    /**
+     * Event listener for the dungeon generation button click.
+     */
     generateBtn.addEventListener('click', function() {
+        // Read starting dungeon level and total levels to generate from input fields
         const startLevel = parseInt(container.querySelector('.coc-start-level').value, 10) || 1;
         const numLevels = parseInt(container.querySelector('.coc-num-levels').value, 10) || 1;
 
         allGeneratedLevels = [];
         tabsDiv.innerHTML = '';
 
+        // Create an offscreen container for map rendering and base64 export
         const tempContainer = document.createElement('div');
         tempContainer.style.width = '1200px';
         tempContainer.style.height = '800px';
@@ -30,11 +40,13 @@ window.initCavernsOfCarnage = function(container) {
         tempContainer.style.left = '-9999px';
         document.body.appendChild(tempContainer);
 
+        // Generate each requested dungeon level sequentially
         for (let i = 0; i < numLevels; i++) {
             const currentLevelNum = startLevel + i;
             const cavern = new Cavern(currentLevelNum);
             cavern.make(currentLevelNum);
 
+            // Deep-clone generated data structures for storage across levels
             const roomListCopy = JSON.parse(JSON.stringify(window.cocRoomList));
             const passageListCopy = JSON.parse(JSON.stringify(window.cocPassageList));
             const monsterListCopy = JSON.parse(JSON.stringify(window.cocMonsterList));
@@ -52,6 +64,7 @@ window.initCavernsOfCarnage = function(container) {
             });
         }
 
+        // Link multi-level stair connections across generated levels if multiple levels exist
         if (allGeneratedLevels.length > 1) {
             allGeneratedLevels.forEach(lvlData => {
                 lvlData.roomList.forEach(room => {
@@ -83,6 +96,7 @@ window.initCavernsOfCarnage = function(container) {
             });
         }
 
+        // Render map images for each level into base64 PNG exports
         allGeneratedLevels.forEach(lvlData => {
             window.cocRoomList = lvlData.roomList;
             window.cocPassageList = lvlData.passageList;
@@ -94,6 +108,7 @@ window.initCavernsOfCarnage = function(container) {
             lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
         });
 
+        // Clean up temporary DOM container
         document.body.removeChild(tempContainer);
 
         outputDiv.style.display = 'block';
@@ -101,6 +116,7 @@ window.initCavernsOfCarnage = function(container) {
             downloadBtn.style.display = 'inline-block';
         }
 
+        // Build navigation tab buttons for each generated level
         allGeneratedLevels.forEach((lvlData, index) => {
             const tabBtn = document.createElement('button');
             tabBtn.type = 'button';
@@ -114,15 +130,18 @@ window.initCavernsOfCarnage = function(container) {
             tabsDiv.appendChild(tabBtn);
         });
 
+        // Display the first level by default
         if (allGeneratedLevels.length > 0) {
             renderLevel(allGeneratedLevels[0]);
         }
     });
 
+    // Event listener for downloading the complete HTML adventure manual and maps
     if (downloadBtn) {
         downloadBtn.addEventListener('click', function() {
             if (!allGeneratedLevels || allGeneratedLevels.length === 0) return;
 
+            // Construct Word/HTML document markup wrapper and styles
             let htmlDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
             htmlDoc += '<head><meta charset="utf-8"><title>Caverns of Carnage Adventure Manual</title>';
             htmlDoc += '<style>';
@@ -140,6 +159,7 @@ window.initCavernsOfCarnage = function(container) {
             htmlDoc += '.coc-hp-item { break-inside: avoid; page-break-inside: avoid; line-height: 1.3; margin-bottom: 2px; }';
             htmlDoc += '</style></head><body>';
 
+            // Append maps and adventure manuals for each level into the download document
             allGeneratedLevels.forEach(lvlData => {
                 window.cocRoomList = lvlData.roomList;
                 window.cocPassageList = lvlData.passageList;
@@ -158,6 +178,7 @@ window.initCavernsOfCarnage = function(container) {
 
             htmlDoc += '</body></html>';
 
+            // Trigger browser download of the generated HTML file blob
             const blob = new Blob(['\ufeff' + htmlDoc], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -170,7 +191,12 @@ window.initCavernsOfCarnage = function(container) {
         });
     }
 
+    /**
+     * Renders a specific dungeon level's map view and adventure manual text.
+     * @param {Object} lvlData - Level data object.
+     */
     function renderLevel(lvlData) {
+        // Load level data into global scope
         window.cocRoomList = lvlData.roomList;
         window.cocPassageList = lvlData.passageList;
         window.cocMonsterList = lvlData.monsterList;

@@ -4,7 +4,12 @@ import { Monster } from './Monster.js';
 import { Item } from './Item.js';
 
 export class Cavern {
+    /**
+     * Initializes a new cavern instance for a given dungeon level.
+     * @param {number} level - The dungeon level number.
+     */
     constructor(level = 1) {
+        // Initialize global list containers for rooms, passages, monsters, and items
         window.cocRoomList = [];
         window.cocPassageList = [];
         window.cocMonsterList = [];
@@ -14,17 +19,31 @@ export class Cavern {
         Cavern.wanderingMonsters = [];
     }
 
+    /**
+     * Selects a random element from an array of choices.
+     * @param {Array} choices - Array of selectable options.
+     * @returns {*} The randomly chosen element.
+     */
     chooseOne(choices) {
+        // Return a randomly selected element from the choices array
         return choices[Math.floor(Math.random() * choices.length)];
     }
 
+    /**
+     * Selects an option from a weighted choice object.
+     * @param {Object} choices - Dictionary mapping choices to weights.
+     * @returns {string} The selected choice key.
+     */
     chooseOneWeighted(choices) {
+        // Calculate total weight of all choices
         let total = 0;
         for (const choice in choices) {
             total += choices[choice];
         }
+        // Roll a random value within the total weight range
         let roll = Math.floor(Math.random() * total) + 1;
         let selectedChoice = null;
+        // Subtract weights until the roll threshold is reached
         for (const choice in choices) {
             roll -= choices[choice];
             selectedChoice = choice;
@@ -33,7 +52,14 @@ export class Cavern {
         return selectedChoice;
     }
 
+    /**
+     * Rolls a sum of multiple die rolls.
+     * @param {number} rolls - Number of dice to roll.
+     * @param {number} sides - Number of sides per die.
+     * @returns {number} The total sum of the rolls.
+     */
     rollSum(rolls, sides) {
+        // Accumulate sum across specified number of dice rolls
         let t = 0;
         for (let r = 0; r < rolls; r++) {
             t += Math.floor(Math.random() * sides) + 1;
@@ -41,7 +67,15 @@ export class Cavern {
         return t;
     }
 
+    /**
+     * Rolls a value between low and high with optional curve distribution.
+     * @param {number} low - Minimum value.
+     * @param {number} high - Maximum value.
+     * @param {number} curve - Curve factor.
+     * @returns {number} The computed roll result.
+     */
     roll(low, high, curve = 1) {
+        // Sum multiple uniform random rolls to approximate a curve distribution
         let t = 0;
         for (let r = 0; r < curve; r++) {
             t += Math.floor(Math.random() * (high - low + 1)) + low;
@@ -49,35 +83,55 @@ export class Cavern {
         return Math.round(t / curve);
     }
 
+    /**
+     * Evaluates a percentage chance roll.
+     * @param {number} chance - Percentage threshold (1-100).
+     * @returns {boolean} True if roll succeeds.
+     */
     p(chance) {
+        // Return true if a random percentile roll is within the chance threshold
         return (Math.floor(Math.random() * 100) + 1) <= chance;
     }
 
+    /**
+     * Computes a die roll specification string (e.g. "3d6+2").
+     * @param {string|number} spec - Die roll specification.
+     * @returns {number} The calculated result.
+     */
     computeRoll(spec) {
+        // Parse dice notation spec string into rolls, sides, and bonus
         const match = String(spec).match(/(\d+)d?(\d+)?([\+\-]\d+)?/);
         if (!match) return parseInt(spec, 10) || 1;
         const rolls = parseInt(match[1], 10);
         const sides = match[2] ? parseInt(match[2], 10) : 1;
         const bonus = match[3] ? parseInt(match[3], 10) : 0;
         let t = bonus;
+        // Roll the dice and add bonus
         for (let r = 0; r < rolls; r++) {
             t += Math.floor(Math.random() * sides) + 1;
         }
         return t > 0 ? t : 1;
     }
 
+    /**
+     * Generates a complete cavern dungeon level layout.
+     * @param {number} level - Dungeon level.
+     */
     make(level = 1) {
         Cavern.level = level;
         Cavern.wanderingMonsters = [];
 
+        // Generate the initial entrance room
         Room.generate(level, this);
         const targetRooms = 2 + this.roll(1, 30, 3);
 
+        // Configure the entrance room settings and initial outlet passage
         let room = window.cocRoomList[0];
         room.name = 'Entrance';
         const passage = Passage.generate(room.id, level, window.cocRoomList, this);
         room.outlets.push(passage.id);
 
+        // Iteratively expand the dungeon rooms and passages until target count is met
         let loop = 1000000;
         while (loop && window.cocRoomList.length < targetRooms) {
             room.alter(level, this);
@@ -97,6 +151,7 @@ export class Cavern {
             loop--;
         }
 
+        // Clean up any dangling passages that failed to connect to a room
         for (const passageId in window.cocPassageList) {
             const pass = window.cocPassageList[passageId];
             if (pass.end === null) {
@@ -104,6 +159,7 @@ export class Cavern {
             }
         }
 
+        // Propagate lighting from lighted passages into dark rooms
         window.cocRoomList.forEach(r => {
             if (r.light > 0) return;
             r.outlets.forEach(passageId => {
@@ -115,6 +171,7 @@ export class Cavern {
             });
         });
 
+        // Assign descriptive names to rooms based on traps, monsters, or contents
         window.cocRoomList.forEach(r => {
             if (r.name === 'Entrance') return;
             let name = '';
@@ -133,6 +190,7 @@ export class Cavern {
             r.name = name;
         });
 
+        // Populate wandering monsters table for this cavern level
         const tableSizeChoices = [0, 4, 6, 8, 10, 12, 20];
         const tableSize = this.chooseOne(tableSizeChoices);
         const usedMonsters = [];
@@ -157,6 +215,7 @@ export class Cavern {
             }
         }
 
+        // Cache the generated level data for multi-level tracking
         if (!window.cocGeneratedLevels) {
             window.cocGeneratedLevels = [];
         }
@@ -168,7 +227,12 @@ export class Cavern {
         });
     }
 
+    /**
+     * Generates a random environmental event description.
+     * @returns {string} The event text.
+     */
     getEvent() {
+        // Return a randomly selected environmental event description
         const events = [
             'An earthquake rumbles from below, causing small stones to drop from above.',
             'Water rushes through the chamber, rising to 2d6 inches, then recedes.',

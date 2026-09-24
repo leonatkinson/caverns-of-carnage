@@ -5,9 +5,15 @@ import { Monster } from './Monster.js';
 import { Item } from './Item.js';
 
 export class Manual {
+    /**
+     * Generates HTML markup for a monster stat block and hit point checkboxes.
+     * @param {Monster} monster - Monster instance.
+     * @returns {string} HTML string.
+     */
     static getMonsterBlock(monster) {
         let html = '<div class="coc-monster-block">';
         let header = '<strong>';
+        // Format monster count header if appearing count > 1
         if (monster.appearing > 1) {
             header += monster.appearing + ' ';
         }
@@ -21,6 +27,7 @@ export class Manual {
 
         let maxHp = 0;
         let hpLines = [];
+        // Build hit point tracking boxes for each individual monster
         for (let i = 0; i < monster.appearing; i++) {
             const hpVal = monster.hp[i];
             if (hpVal > maxHp) maxHp = hpVal;
@@ -33,6 +40,7 @@ export class Manual {
             hpLines.push('<div class="coc-hp-item"><code>' + hp + ' <span class="coc-hp-boxes">' + boxes + '</span></code></div>');
         }
 
+        // Determine CSS column layout based on max hit points
         let colClass = 'coc-hp-cols-2';
         if (maxHp < 6) {
             colClass = 'coc-hp-cols-4';
@@ -45,14 +53,26 @@ export class Manual {
         return html;
     }
 
+    /**
+     * Formats a door description with its type and location.
+     * @param {string} type - Door type.
+     * @param {string} location - Door location.
+     * @returns {string} Formatted door description.
+     */
     static getDoorDescription(type, location) {
+        // Capitalize door type and combine with location
         return type.charAt(0).toUpperCase() + type.slice(1) + ' on the ' + location;
     }
 
+    /**
+     * Generates the complete adventure manual HTML for a dungeon level.
+     * @param {number} level - Dungeon level.
+     * @returns {string} HTML adventure manual.
+     */
     static getHtml(level) {
         let html = '<h2>Level ' + level + '</h2>';
 
-        // Wandering Monsters
+        // Render Wandering Monsters section if present
         if (Cavern.wanderingMonsters && Cavern.wanderingMonsters.length > 0) {
             html += '<h3>Wandering Monsters d' + Cavern.wanderingMonsters.length + '</h3>';
             html += '<ol>';
@@ -78,7 +98,7 @@ export class Manual {
             html += '</ol>';
         }
 
-        // Rooms
+        // Render detailed Room entries section
         window.cocRoomList.forEach(room => {
             html += '<div class="coc-room-entry">';
             html += '<h4>' + (room.id + 1) + '. ' + room.name + '</h4>';
@@ -87,7 +107,7 @@ export class Manual {
             }
             html += '<p>' + room.description + '</p>';
 
-            // Contents
+            // Append room contents summary
             html += '<p><strong>Contents:</strong> ';
             const list = [];
             if (room.contents && room.contents.length > 0) {
@@ -98,7 +118,7 @@ export class Manual {
             }
             html += (list.length > 0 ? list.join(', ') + '.' : 'empty.') + '</p>';
 
-            // Exits
+            // Append room exits and passage details
             html += '<p><strong>Exits:</strong></p><ul>';
             room.outlets.forEach(passageId => {
                 const passage = window.cocPassageList[passageId];
@@ -121,7 +141,7 @@ export class Manual {
             });
             html += '</ul>';
 
-            // Monsters
+            // Append monster blocks present in the room
             if (room.monsters && room.monsters.length > 0) {
                 room.monsters.forEach(monsterId => {
                     const monster = window.cocMonsterList[monsterId];

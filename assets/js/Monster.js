@@ -163,6 +163,9 @@ export class Monster {
         ["Orc Warrior armored", "2d8", "", "75", "Orc Warrior armored: AC 14, HD 2, #At 1 weapon, Dam 1d8 or by weapon, Mv 30', Sv F2, Ml 9 "]
     ];
 
+    /**
+     * Initializes a new monster instance.
+     */
     constructor() {
         this.id = 0;
         this.room = null;
@@ -173,12 +176,20 @@ export class Monster {
         this.parent = null;
     }
 
+    /**
+     * Generates and registers a new monster instance in global tracking lists.
+     * @param {number|null} roomId - Room identifier if placed in a room.
+     * @param {Array} roomList - List of rooms.
+     * @returns {Monster} The created monster instance.
+     */
     static generate(roomId = null, roomList) {
+        // Create new monster instance and assign next available ID
         const m = new Monster();
         m.id = window.cocMonsterList ? window.cocMonsterList.length : 0;
         if (!window.cocMonsterList) window.cocMonsterList = [];
         window.cocMonsterList[m.id] = m;
 
+        // Associate monster with room if roomId is provided
         if (roomId !== null && roomList[roomId]) {
             m.room = roomId;
             roomList[roomId].monsters.push(m.id);
@@ -186,14 +197,24 @@ export class Monster {
         return m;
     }
 
+    /**
+     * Creates a monster scaled to the given dungeon level.
+     * @param {number|null} roomId - Room identifier.
+     * @param {number} level - Dungeon level.
+     * @param {Array} roomList - List of rooms.
+     * @param {Cavern} cavern - Cavern generator instance.
+     * @returns {Monster} The generated monster.
+     */
     static makeMonsterByLevel(roomId = null, level = 1, roomList, cavern) {
         const maxHD = level + Math.floor(Math.sqrt(level));
         let m = null;
 
+        // If placing in a room, attempt to reuse an existing monster type from current level or above 25% of the time
         if (roomId !== null) {
             const useExistingType = cavern && typeof cavern.p === 'function' ? cavern.p(25) : (Math.random() < 0.25);
             if (useExistingType) {
                 const candidateNames = [];
+                // Collect monster names from other rooms on this level
                 if (roomList) {
                     roomList.forEach(r => {
                         if (r.id === roomId) return;
@@ -208,6 +229,7 @@ export class Monster {
                     });
                 }
 
+                // Collect monster names from rooms on levels above
                 if (window.cocGeneratedLevels && Array.isArray(window.cocGeneratedLevels)) {
                     window.cocGeneratedLevels.forEach(lvl => {
                         if (lvl.level < level) {
@@ -227,6 +249,7 @@ export class Monster {
                     });
                 }
 
+                // Filter candidates to those valid for current max HD
                 const validCandidates = [];
                 candidateNames.forEach(name => {
                     const rosterEntry = Monster.roster.find(entry => entry[1] === name);
@@ -237,6 +260,7 @@ export class Monster {
                     }
                 });
 
+                // Choose a valid candidate monster type if available
                 if (validCandidates.length > 0) {
                     const chooseFn = cavern && typeof cavern.chooseOne === 'function' 
                         ? cavern.chooseOne.bind(cavern) 
@@ -246,23 +270,27 @@ export class Monster {
             }
         }
 
+        // Fall back to picking a random monster from roster within max HD limit
         if (!m) {
             do {
                 m = Monster.roster[Math.floor(Math.random() * Monster.roster.length)];
             } while (parseInt(m[0], 10) > maxHD);
         }
 
+        // Initialize monster attributes from roster entry
         const monster = Monster.generate(roomId, roomList);
         monster.name = m[1];
         monster.statBlock = m[7];
         monster.appearing = cavern.computeRoll(m[3]);
         if (monster.appearing <= 0) monster.appearing = 1;
 
+        // Scale number appearing if level exceeds monster HD requirement
         const levelDiff = maxHD - parseInt(m[0], 10);
         if (levelDiff > 0) {
             monster.appearing *= Math.floor(Math.sqrt(levelDiff));
         }
 
+        // Helper function to spawn humanoid leader bodyguards/warriors
         const checkHumanoid = (name, threshold, warriorName) => {
             if (monster.name === name && monster.appearing >= threshold) {
                 const warriors = Math.round(monster.appearing / threshold);
@@ -272,6 +300,7 @@ export class Monster {
             }
         };
 
+        // Check and spawn humanoid warrior squads
         checkHumanoid('Bugbear', 8, 'Bugbear Warrior armored');
         checkHumanoid('Gnoll', 6, 'Gnoll Warrior armored');
         checkHumanoid('Goblin', 8, 'Goblin Warrior armored');
@@ -280,6 +309,7 @@ export class Monster {
         checkHumanoid('Ogre', 6, 'Ogre Pack Leader armored');
         checkHumanoid('Orc', 8, 'Orc Warrior armored');
 
+        // Roll hit points for each individual monster in the group and generate lair treasure
         for (let i = 0; i < monster.appearing; i++) {
             monster.hp.push(cavern.computeRoll(m[2]));
             if (roomId !== null) {
@@ -298,16 +328,28 @@ export class Monster {
         return monster;
     }
 
+    /**
+     * Generates a subgroup of armored humanoid warriors.
+     * @param {number|null} roomId - Room identifier.
+     * @param {string} name - Warrior type name.
+     * @param {number} appearing - Number appearing.
+     * @param {Array} roomList - Room list.
+     * @param {Cavern} cavern - Cavern generator.
+     * @returns {Monster} The generated warrior monster group.
+     */
     static makeWarriors(roomId, name, appearing, roomList, cavern) {
+        // Find matching humanoid warrior profile
         let warrior = null;
         for (const h of Monster.humanoids) {
             if (h[0] === name) { warrior = h; break; }
         }
+        // Generate monster group for warriors
         const monster = Monster.generate(roomId, roomList);
         monster.name = warrior[0];
         monster.statBlock = warrior[4];
         monster.appearing = appearing;
 
+        // Roll hit points and treasure for warriors
         for (let i = 0; i < monster.appearing; i++) {
             monster.hp.push(cavern.computeRoll(warrior[1]));
             if (roomId !== null) {

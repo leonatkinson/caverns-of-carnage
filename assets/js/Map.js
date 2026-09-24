@@ -2,9 +2,15 @@ import cytoscape from 'cytoscape';
 import { Passage } from './Passage.js';
 
 export class Map {
+    /**
+     * Renders the interactive topological cavern map using Cytoscape.js.
+     * @param {HTMLElement} container - DOM container element.
+     * @returns {Object} The Cytoscape instance.
+     */
     static render(container) {
         const elements = [];
 
+        // Build graph nodes for each room with lighting and dimension styling
         window.cocRoomList.forEach(room => {
             const shade = Math.floor(room.light * 255);
             const fillcolor = `rgb(${shade}, ${shade}, ${shade})`;
@@ -24,6 +30,7 @@ export class Map {
             });
         });
 
+        // Build graph edges for each passage connecting rooms
         window.cocPassageList.forEach(passage => {
             if (passage.end === null) return;
             const shade = Math.floor(passage.light * 255);
@@ -42,6 +49,7 @@ export class Map {
             });
         });
 
+        // Clear container and initialize Cytoscape graph renderer
         container.innerHTML = '';
         const cy = cytoscape({
             container: container,
@@ -89,6 +97,7 @@ export class Map {
             ]
         });
 
+        // Resize and run breadth-first layout simulation
         cy.resize();
         cy.layout({
             name: 'breadthfirst',

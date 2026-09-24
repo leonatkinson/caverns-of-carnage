@@ -1,5 +1,11 @@
 export class Trap {
+    /**
+     * Selects and returns a random trap description.
+     * @param {Cavern} cavern - Cavern generator.
+     * @returns {string} Trap description.
+     */
     static get(cavern) {
+        // Array of possible dungeon traps and hazards
         const traps = [
             `Anything more than ${Math.floor(Math.random() * 10 + 1) * 50} pounds tumbles into a 10 foot deep pit.`,
             `Anything more than ${Math.floor(Math.random() * 10 + 1) * 50} pounds tumbles into a 20 foot deep pit.`,

@@ -4,6 +4,9 @@ import { Item } from './Item.js';
 import { Trap } from './Trap.js';
 
 export class Room {
+    /**
+     * Initializes a new room instance with default parameters.
+     */
     constructor() {
         this.id = 0;
         this.name = 'Room';
@@ -23,14 +26,24 @@ export class Room {
         this.stairsUpSentence = '';
     }
 
+    /**
+     * Generates a new room with randomized dimensions, lighting, stairs, monsters, and treasure.
+     * @param {number} level - Dungeon level.
+     * @param {Cavern} cavern - Cavern generator instance.
+     * @returns {Room} The generated room.
+     */
     static generate(level, cavern) {
+        // Ensure global room list array exists
         if (!window.cocRoomList) window.cocRoomList = [];
         const r = new Room();
         r.id = window.cocRoomList.length;
+
+        // Roll randomized dimensions and height for the room
         r.width = Math.max(5, Math.round((Math.floor(Math.random() * 46) + 5) / 5) * 5);
         r.depth = Math.max(5, Math.round((Math.floor(Math.random() * 46) + 5) / 5) * 5);
         r.height = Math.max(5, Math.round(cavern.roll(4, 12, 4) / 5) * 5);
 
+        // Determine room lighting level (dark, dim, or bright)
         const light = Math.floor(Math.random() * 100) + 1;
         if (light <= 50) r.light = 0;
         else if (light <= 75) r.light = 0.5;
@@ -38,8 +51,10 @@ export class Room {
 
         window.cocRoomList[r.id] = r;
 
+        // Build base description string with dimensions
         r.description = 'The room is ' + r.width + '&prime;&times;' + r.depth + '&prime; with a ' + r.height + '&prime; ceiling.';
 
+        // Random chance for stairs leading down or up
         if (cavern.p(10)) {
             r.hasStairsDown = true;
             r.stairsDownSentence = Room.stairs('down', cavern);
@@ -51,9 +66,10 @@ export class Room {
             r.description += ' ' + r.stairsUpSentence;
         }
 
+        // Roll for room contents (monsters, treasure, traps, or empty)
         const roll = Math.floor(Math.random() * 20) + 1;
         if (roll <= 12) {
-            // Empty
+            // Room is empty
         } else if (roll <= 16) {
             Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
         } else if (roll <= 18) {
@@ -66,10 +82,12 @@ export class Room {
             Item.makeTreasureByLevel(r.id, level, window.cocRoomList, cavern);
         }
 
+        // Small chance for miscellaneous room feature or extra detail
         if (Math.floor(Math.random() * 20) + 1 === 1) {
             r.description += ' ' + Room.extra(cavern);
         }
 
+        // Level-based chance for an additional trap
         if (Math.floor(Math.random() * 20) + 1 <= level) {
             r.trapped = true;
             r.trap = Trap.get(cavern);
@@ -78,7 +96,13 @@ export class Room {
         return r;
     }
 
+    /**
+     * Alters room connections by adding new passages or linking to existing rooms.
+     * @param {number} level - Dungeon level.
+     * @param {Cavern} cavern - Cavern generator instance.
+     */
     alter(level, cavern) {
+        // Calculate maximum allowed door capacity based on room perimeter
         const circumference = this.width + this.depth * 2;
         const doorspace = Math.max(4, Math.floor(circumference / 20));
         if (this.outlets.length < doorspace) {
@@ -89,6 +113,7 @@ export class Room {
             }
         }
 
+        // Random chance to create a cross-connection to an existing room
         if (Math.floor(Math.random() * 100) + 1 <= 25) {
             const roomId = Math.floor(Math.random() * window.cocRoomList.length);
             const rejectedRooms = [this.id];
@@ -106,6 +131,12 @@ export class Room {
         }
     }
 
+    /**
+     * Generates a descriptive sentence for stairs leading up or down.
+     * @param {string} dir - Direction ('up' or 'down').
+     * @param {Cavern} cavern - Cavern generator instance.
+     * @returns {string} The stairs description.
+     */
     static stairs(dir, cavern) {
         const wide = cavern.roll(3, 10, 4) + ' foot wide';
         const choices = {};
@@ -130,7 +161,13 @@ export class Room {
         return cavern.chooseOneWeighted(choices) + ' ';
     }
 
+    /**
+     * Generates a random environmental detail or extra feature description for a room.
+     * @param {Cavern} cavern - Cavern generator instance.
+     * @returns {string} The extra feature description.
+     */
     static extra(cavern) {
+        // Array of environmental flavor text descriptions
         const description = [
             'Broken parts of adventure gear sprawls, rusting and rotting.',
             'A discarded snake skin drapes over a jagged stone.',
@@ -196,7 +233,13 @@ export class Room {
         return cavern.chooseOne(description);
     }
 
+    /**
+     * Generates a random room purpose/function descriptor.
+     * @param {Cavern} cavern - Cavern generator instance.
+     * @returns {string} The purpose description.
+     */
     static purpose(cavern) {
+        // Array of possible functional room purposes
         const description = [
             'Bed Chamber', 'Kitchen', 'Hall', 'Latrine', 'Garbage Dump',
             'Pantry', 'Storage', 'Armory', 'Guardhouse', 'Chapel',
