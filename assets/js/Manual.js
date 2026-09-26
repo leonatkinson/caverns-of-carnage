@@ -2,6 +2,7 @@ import { Cavern } from './Cavern.js';
 import { Room } from './Room.js';
 import { Passage } from './Passage.js';
 import { Monster } from './Monster.js';
+import { Npc } from './Npc.js';
 import { Item } from './Item.js';
 
 export class Manual {
@@ -54,6 +55,41 @@ export class Manual {
     }
 
     /**
+     * Generates HTML markup for an NPC character record.
+     * @param {Npc} npc - NPC instance.
+     * @returns {string} HTML string.
+     */
+    static getNpcBlock(npc) {
+        let html = '<div class="coc-npc-block">';
+        let header = '<strong>' + npc.name + ', ' + npc.race + ' ' + npc.className + ' ' + npc.level + ':</strong> ';
+        header += 'AC ' + npc.ac + ', AB +' + npc.ab + ', #At ' + npc.at + ', Dam ' + npc.dam + ', Mv ' + npc.mv + ', ML ' + npc.ml + ', XP ' + npc.xp;
+        html += '<p>' + header + '</p>';
+
+        const primeAttr = Npc.primeMap[npc.className] || 'DEX';
+        const modVal = npc.stats[primeAttr + '_mod'] !== undefined ? npc.stats[primeAttr + '_mod'] : npc.stats.DEX_mod;
+        const scoreVal = npc.stats[primeAttr] !== undefined ? npc.stats[primeAttr] : npc.stats.DEX;
+        let attrStr = primeAttr + ' ' + scoreVal + ' (' + (modVal >= 0 ? '+' : '') + modVal + ')';
+        html += '<p>' + attrStr + '</p>';
+
+        if (npc.spells && npc.spells.length > 0) {
+            html += '<p><strong>Spells:</strong> ' + npc.spells.join(', ') + '</p>';
+        }
+
+        let eqStr = npc.equipment && npc.equipment.length > 0 ? npc.equipment.join(', ') : 'none';
+        html += '<p><strong>Equipment:</strong> ' + eqStr + '</p>';
+
+        let boxes = '';
+        for (let h = 1; h <= npc.hp; h++) {
+            boxes += '☐';
+            if (h % 5 === 0) boxes += ' ';
+        }
+        html += '<div class="coc-hp-item"><code>HP ' + npc.hp + ' <span class="coc-hp-boxes">' + boxes + '</span></code></div>';
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
      * Formats a door description with its type and location.
      * @param {string} type - Door type.
      * @param {string} location - Door location.
@@ -78,15 +114,15 @@ export class Manual {
             html += '<ol>';
             Cavern.wanderingMonsters.forEach((entry, key) => {
                 let desc = '';
-                if (entry instanceof Monster || (entry && entry.name && entry.statBlock)) {
+                if (entry instanceof Monster || (entry && entry.name && entry.statBlock) || entry.isNpc) {
                     if (entry.room !== null && entry.room !== undefined) {
                         const room = window.cocRoomList[entry.room];
                         desc = entry.name + ' from Room ' + (room.id + 1) + '. ' + room.name;
                     } else {
-                        desc = Manual.getMonsterBlock(entry);
+                        desc = entry.isNpc ? Manual.getNpcBlock(entry) : Manual.getMonsterBlock(entry);
                         window.cocMonsterList.forEach(m => {
                             if (m.parent === entry.id) {
-                                desc += Manual.getMonsterBlock(m);
+                                desc += m.isNpc ? Manual.getNpcBlock(m) : Manual.getMonsterBlock(m);
                             }
                         });
                     }
@@ -146,7 +182,11 @@ export class Manual {
                 room.monsters.forEach(monsterId => {
                     const monster = window.cocMonsterList[monsterId];
                     if (monster) {
-                        html += Manual.getMonsterBlock(monster);
+                        if (monster.isNpc) {
+                            html += Manual.getNpcBlock(monster);
+                        } else {
+                            html += Manual.getMonsterBlock(monster);
+                        }
                     }
                 });
             }

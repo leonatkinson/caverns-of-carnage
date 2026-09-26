@@ -1,5 +1,6 @@
 import { Passage } from './Passage.js';
 import { Monster } from './Monster.js';
+import { Npc } from './Npc.js';
 import { Item } from './Item.js';
 import { Trap } from './Trap.js';
 
@@ -71,9 +72,17 @@ export class Room {
         if (roll <= 12) {
             // Room is empty
         } else if (roll <= 16) {
-            Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
+            if (cavern.p(25)) {
+                Npc.makeNpcPartyByLevel(r.id, level, window.cocRoomList, cavern);
+            } else {
+                Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
+            }
         } else if (roll <= 18) {
-            Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
+            if (cavern.p(25)) {
+                Npc.makeNpcPartyByLevel(r.id, level, window.cocRoomList, cavern);
+            } else {
+                Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
+            }
             Item.makeTreasureByLevel(r.id, level, window.cocRoomList, cavern);
         } else if (roll === 19) {
             r.description += ' ' + Trap.get(cavern);

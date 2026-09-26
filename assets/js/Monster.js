@@ -54,7 +54,6 @@ export class Monster {
         ["3", "Wererat", "3d8", "1d8", "C", "", "175", "Wererat*: AC 13 †, HD 3*, #At 1 bite or 1 weapon, Dam 1d4 or 1d6 or by weapon, Mv 40', Sv F3, Ml 8 "],
         ["3", "Gray Ooze", "3d8", "1", "", "", "175", "Gray Ooze: AC 12, HD 3*, #At 1, Dam 2d8, Mv 1', Sv F3, Ml 12 "],
         ["3", "Shrieker", "3d8", "1d8", "", "", "145", "Shrieker: AC 13, HD 3, #At Special, Dam None, Mv 5', Sv F1, Ml 12 Screams for 1d3 rounds if attacked or approached too close (10') attracting wandering monsters, nearby monsters, etc."],
-        ["3", "Sea Snake", "3d8", "Wild 1d8", "", "", "175", "Sea Snake: AC 14, HD 3*, #At 1 bite, Dam 1 + poison, Mv 10' Swim 30', Sv F3, Ml 7 "],
         ["3", "Giant Black Widow Spider", "3d8", "1d3", "", "", "175", "Giant Black Widow Spider: AC 14, HD 3*, #At 1 bite, Dam 2d6 + poison, Mv 20' Web 40', Sv F3, Ml 8 "],
         ["3", "Wight", "3d8", "1d6", "B", "", "175", "Wight*: AC 15 †, HD 3*, #At 1 touch, Dam Energy drain (1 level), Mv 30', Sv F3, Ml 12 1/2 damage from burning oil"],
         ["4", "Carnivorous Ape", "4d8", "1d6", "", "", "240", "Carnivorous Ape: AC 14, HD 4, #At 2 claws, Dam 1d4/1d4, Mv 40', Sv F4, Ml 7 "],
@@ -262,8 +261,8 @@ export class Monster {
 
                 // Choose a valid candidate monster type if available
                 if (validCandidates.length > 0) {
-                    const chooseFn = cavern && typeof cavern.chooseOne === 'function' 
-                        ? cavern.chooseOne.bind(cavern) 
+                    const chooseFn = cavern && typeof cavern.chooseOne === 'function'
+                        ? cavern.chooseOne.bind(cavern)
                         : (choices => choices[Math.floor(Math.random() * choices.length)]);
                     m = chooseFn(validCandidates);
                 }
