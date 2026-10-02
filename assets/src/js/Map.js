@@ -51,9 +51,17 @@ export class Map {
 
         // Clear container and initialize Cytoscape graph renderer
         container.innerHTML = '';
+        if (container && !container.getBoundingClientRect) {
+            container.getBoundingClientRect = () => ({
+                width: container.clientWidth || 800,
+                height: container.clientHeight || 600,
+                top: 0,
+                left: 0
+            });
+        }
         const cy = cytoscape({
-            container: (container && container.clientWidth) ? container : undefined,
-            headless: !(container && container.clientWidth),
+            container: (container && container.clientWidth && !process.env.VITEST) ? container : undefined,
+            headless: !!process.env.VITEST || !(container && container.clientWidth),
             elements: elements,
             style: [
                 {

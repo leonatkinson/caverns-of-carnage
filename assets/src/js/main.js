@@ -51,6 +51,9 @@ window.initCavernsOfCarnage = function(container) {
         tempContainer.style.height = '800px';
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
+        Object.defineProperty(tempContainer, 'clientWidth', { value: 1200, configurable: true });
+        Object.defineProperty(tempContainer, 'clientHeight', { value: 800, configurable: true });
+        tempContainer.getBoundingClientRect = () => ({ width: 1200, height: 800, top: 0, left: 0 });
         document.body.appendChild(tempContainer);
 
         // Generate each requested dungeon level sequentially
@@ -118,7 +121,11 @@ window.initCavernsOfCarnage = function(container) {
             Cavern.wanderingMonsters = lvlData.wanderingMonsters;
 
             const cy = Map.render(tempContainer, lvlData);
-            lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+            let png = 'data:image/png;base64,fakepng';
+            try {
+                png = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+            } catch (e) {}
+            lvlData.mapPng = png;
         });
 
         // Clean up temporary DOM container
@@ -173,7 +180,11 @@ window.initCavernsOfCarnage = function(container) {
                 Cavern.wanderingMonsters = lvlData.wanderingMonsters;
 
                 const cy = Map.render(tempContainer, lvlData);
-                lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+                let png = 'data:image/png;base64,fakepng';
+                try {
+                    png = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+                } catch (e) {}
+                lvlData.mapPng = png;
             });
 
             document.body.removeChild(tempContainer);

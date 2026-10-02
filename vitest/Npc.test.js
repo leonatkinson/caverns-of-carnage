@@ -1,8 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { Npc } from '../assets/src/js/Npc.js';
+import { Cavern } from '../assets/src/js/Cavern.js';
 
 describe('Npc', () => {
-  it('defines npc classes or methods', () => {
-    expect(Npc).toBeDefined();
+  it('generates NPCs and parties', () => {
+    const cavern = new Cavern(1);
+    window.cocRoomList = [{ id: 0, monsters: [] }];
+    window.cocMonsterList = [];
+    Npc.makeNpcPartyByLevel(0, 1, window.cocRoomList, cavern);
+    expect(window.cocMonsterList.length).toBeGreaterThan(0);
   });
 });
