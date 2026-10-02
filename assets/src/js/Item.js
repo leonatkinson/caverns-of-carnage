@@ -1,3 +1,6 @@
+import { Dice } from './Dice.js';
+import { Cavern } from './Cavern.js';
+
 export class Item {
     static gemsList = [
         'Agate', 'Amber', 'Amethyst', 'Aquamarine', 'Aventurine', 'Beryl',
@@ -90,19 +93,19 @@ export class Item {
     static gems(number, roomId, roomList, cavern) {
         for (let n = 0; n < number; n++) {
             const item = Item.generate(roomId, roomList);
-            let base = 10, count = cavern.roll(1, 10);
+            let base = 10, count = Dice.roll(1, 10);
             // Roll gemstone base value category
-            const rollBase = cavern.roll(1, 5, 4);
-            if (rollBase === 1) { base = 10; count = cavern.roll(1, 10); }
-            else if (rollBase === 2) { base = 50; count = cavern.roll(1, 8); }
-            else if (rollBase === 3) { base = 100; count = cavern.roll(1, 6); }
-            else if (rollBase === 4) { base = 500; count = cavern.roll(1, 4); }
-            else { base = 1000; count = cavern.roll(1, 2); }
+            const rollBase = Dice.roll(1, 5, 4);
+            if (rollBase === 1) { base = 10; count = Dice.roll(1, 10); }
+            else if (rollBase === 2) { base = 50; count = Dice.roll(1, 8); }
+            else if (rollBase === 3) { base = 100; count = Dice.roll(1, 6); }
+            else if (rollBase === 4) { base = 500; count = Dice.roll(1, 4); }
+            else { base = 1000; count = Dice.roll(1, 2); }
 
             // Apply value adjustments and assign name and total value
             const adjustments = [0.1, 0.5, 0.75, 1, 1.5, 2, 10];
-            base = base * adjustments[cavern.roll(0, 6, 4)];
-            item.name = cavern.chooseOne(Item.gemsList) + ' (' + count + ' @ ' + base.toLocaleString() + ' gp)';
+            base = base * adjustments[Dice.roll(0, 6, 4)];
+            item.name = Dice.chooseOne(Item.gemsList) + ' (' + count + ' @ ' + base.toLocaleString() + ' gp)';
             item.value = base * count;
         }
     }
@@ -130,12 +133,12 @@ export class Item {
         const enemies = ['Dragons', 'Regenerators', 'Enchanted', 'Spell Users', 'Lycanthropes', 'Undead'];
 
         // Select weapon category and sub-type
-        let type = cavern.chooseOne(types);
-        if (type === 'Pole Arm') type = cavern.chooseOne(polearms);
+        let type = Dice.chooseOne(types);
+        if (type === 'Pole Arm') type = Dice.chooseOne(polearms);
         let missile = false, quantity = 1;
         if (type === 'Arrow') {
-            type = cavern.chooseOne(arrows);
-            quantity = cavern.rollSum(2, 6);
+            type = Dice.chooseOne(arrows);
+            quantity = Dice.rollSum(2, 6);
             missile = true;
         }
 
@@ -147,8 +150,8 @@ export class Item {
             else if (roll <= 46) bonus = '+1';
             else if (roll <= 58) bonus = '+2';
             else if (roll <= 64) bonus = '+3';
-            else if (roll <= 82) bonus = '+1, +2 vs. ' + cavern.chooseOne(enemies);
-            else if (roll <= 94) bonus = '+1, +3 vs. ' + cavern.chooseOne(enemies);
+            else if (roll <= 82) bonus = '+1, +2 vs. ' + Dice.chooseOne(enemies);
+            else if (roll <= 94) bonus = '+1, +3 vs. ' + Dice.chooseOne(enemies);
             else if (roll <= 98) bonus = 'Cursed -1';
             else bonus = 'Cursed -2';
         } else {
@@ -158,8 +161,8 @@ export class Item {
             else if (roll <= 65) { bonus = '+3'; item.value = 8000; }
             else if (roll <= 67) { bonus = '+4'; item.value = 12000; }
             else if (roll <= 68) { bonus = '+5'; item.value = 18000; }
-            else if (roll <= 85) { bonus = '+1, +2 vs. ' + cavern.chooseOne(enemies); item.value = 3000; }
-            else if (roll <= 95) { bonus = '+1, +3 vs. ' + cavern.chooseOne(enemies); item.value = 5000; }
+            else if (roll <= 85) { bonus = '+1, +2 vs. ' + Dice.chooseOne(enemies); item.value = 3000; }
+            else if (roll <= 95) { bonus = '+1, +3 vs. ' + Dice.chooseOne(enemies); item.value = 5000; }
             else if (roll <= 98) { bonus = 'Cursed -1'; item.value = 500; }
             else { bonus = 'Cursed -2'; item.value = 500; }
 
@@ -218,7 +221,7 @@ export class Item {
             'Poison', 'Polymorph Self', 'Speed', 'Treasure Finding'
         ];
         const item = Item.generate(roomId, roomList);
-        item.name = 'Potion of ' + cavern.chooseOne(potions);
+        item.name = 'Potion of ' + Dice.chooseOne(potions);
     }
 
     /**
@@ -423,16 +426,16 @@ export class Item {
 
         for (let n = 0; n < number; n++) {
             const item = Item.generate(roomId, roomList);
-            item.value = cavern.rollSum(2, 8) * 100;
+            item.value = Dice.rollSum(2, 8) * 100;
             item.name = '';
             // Randomly prefix with an adjective
-            if (cavern.roll(1, 3) === 1) {
-                item.name = cavern.chooseOne(adjective) + ' ';
+            if (Dice.roll(1, 3) === 1) {
+                item.name = Dice.chooseOne(adjective) + ' ';
             }
-            item.name += cavern.chooseOne(names);
+            item.name += Dice.chooseOne(names);
             // Randomly add decoration details
-            if (cavern.roll(1, 3) === 1) {
-                item.name += ' Decorated with ' + cavern.chooseOne(decorations);
+            if (Dice.roll(1, 3) === 1) {
+                item.name += ' Decorated with ' + Dice.chooseOne(decorations);
             }
             item.name += ' (' + item.value.toLocaleString() + ' gp)';
         }
@@ -449,66 +452,66 @@ export class Item {
         // Roll treasure types and amounts appropriate for the dungeon level
         switch (dungeonLevel) {
             case 1:
-                if (cavern.p(75)) Item.coins('cp', cavern.rollSum(1, 8) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(1, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(7)) Item.coins('gp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(1)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(7)) Item.gems(cavern.roll(1, 4), roomId, roomList, cavern);
-                if (cavern.p(3)) Item.jewelry(cavern.roll(1, 4), roomId, roomList, cavern);
-                if (cavern.p(2)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(75)) Item.coins('cp', Dice.rollSum(1, 8) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(1, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(7)) Item.coins('gp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(1)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(7)) Item.gems(Dice.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(3)) Item.jewelry(Dice.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(2)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 2:
-                if (cavern.p(50)) Item.coins('cp', cavern.rollSum(1, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(1, 8) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 6) * 100, roomId, roomList);
-                if (cavern.p(20)) Item.coins('gp', cavern.rollSum(1, 6) * 100, roomId, roomList);
-                if (cavern.p(2)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(10)) Item.gems(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(7)) Item.jewelry(cavern.roll(1, 4), roomId, roomList, cavern);
-                if (cavern.p(5)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(50)) Item.coins('cp', Dice.rollSum(1, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(1, 8) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 6) * 100, roomId, roomList);
+                if (Dice.p(20)) Item.coins('gp', Dice.rollSum(1, 6) * 100, roomId, roomList);
+                if (Dice.p(2)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(10)) Item.gems(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(7)) Item.jewelry(Dice.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(5)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 3:
-                if (cavern.p(30)) Item.coins('cp', cavern.rollSum(2, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(1, 10) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 8) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('gp', cavern.rollSum(1, 6) * 100, roomId, roomList);
-                if (cavern.p(4)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(15)) Item.gems(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(7)) Item.jewelry(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(8)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(30)) Item.coins('cp', Dice.rollSum(2, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(1, 10) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 8) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('gp', Dice.rollSum(1, 6) * 100, roomId, roomList);
+                if (Dice.p(4)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(15)) Item.gems(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(7)) Item.jewelry(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(8)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 4:
             case 5:
-                if (cavern.p(20)) Item.coins('cp', cavern.rollSum(3, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(2, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('gp', cavern.rollSum(2, 6) * 100, roomId, roomList);
-                if (cavern.p(8)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(20)) Item.gems(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(10)) Item.jewelry(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(12)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(20)) Item.coins('cp', Dice.rollSum(3, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(2, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('gp', Dice.rollSum(2, 6) * 100, roomId, roomList);
+                if (Dice.p(8)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(20)) Item.gems(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(10)) Item.jewelry(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(12)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 6:
             case 7:
-                if (cavern.p(15)) Item.coins('cp', cavern.rollSum(4, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(3, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 12) * 100, roomId, roomList);
-                if (cavern.p(70)) Item.coins('gp', cavern.rollSum(2, 8) * 100, roomId, roomList);
-                if (cavern.p(15)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(30)) Item.gems(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(15)) Item.jewelry(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(16)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(15)) Item.coins('cp', Dice.rollSum(4, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(3, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 12) * 100, roomId, roomList);
+                if (Dice.p(70)) Item.coins('gp', Dice.rollSum(2, 8) * 100, roomId, roomList);
+                if (Dice.p(15)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(30)) Item.gems(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(15)) Item.jewelry(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(16)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             default:
-                if (cavern.p(10)) Item.coins('cp', cavern.rollSum(5, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(5, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(2, 8) * 100, roomId, roomList);
-                if (cavern.p(75)) Item.coins('gp', cavern.rollSum(4, 6) * 100, roomId, roomList);
-                if (cavern.p(30)) Item.coins('pp', cavern.rollSum(1, 4) * 100, roomId, roomList);
-                if (cavern.p(40)) Item.gems(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(30)) Item.jewelry(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(20)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(10)) Item.coins('cp', Dice.rollSum(5, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(5, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(2, 8) * 100, roomId, roomList);
+                if (Dice.p(75)) Item.coins('gp', Dice.rollSum(4, 6) * 100, roomId, roomList);
+                if (Dice.p(30)) Item.coins('pp', Dice.rollSum(1, 4) * 100, roomId, roomList);
+                if (Dice.p(40)) Item.gems(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(30)) Item.jewelry(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(20)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
         }
     }
@@ -524,129 +527,129 @@ export class Item {
         // Switch on treasure type letter to generate standard OSR treasure distributions
         switch (letter.toUpperCase()) {
             case 'A':
-                if (cavern.p(50)) Item.coins('cp', cavern.rollSum(5, 6) * 100, roomId, roomList);
-                if (cavern.p(60)) Item.coins('sp', cavern.rollSum(5, 6) * 100, roomId, roomList);
-                if (cavern.p(40)) Item.coins('ep', cavern.rollSum(5, 4) * 100, roomId, roomList);
-                if (cavern.p(70)) Item.coins('gp', cavern.rollSum(10, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('pp', cavern.rollSum(1, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.gems(cavern.roll(6, 6), roomId, roomList, cavern);
-                if (cavern.p(50)) Item.jewelry(cavern.roll(6, 6), roomId, roomList, cavern);
-                if (cavern.p(30)) Item.magic(3, 'any', roomId, roomList, cavern);
+                if (Dice.p(50)) Item.coins('cp', Dice.rollSum(5, 6) * 100, roomId, roomList);
+                if (Dice.p(60)) Item.coins('sp', Dice.rollSum(5, 6) * 100, roomId, roomList);
+                if (Dice.p(40)) Item.coins('ep', Dice.rollSum(5, 4) * 100, roomId, roomList);
+                if (Dice.p(70)) Item.coins('gp', Dice.rollSum(10, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('pp', Dice.rollSum(1, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.gems(Dice.roll(6, 6), roomId, roomList, cavern);
+                if (Dice.p(50)) Item.jewelry(Dice.roll(6, 6), roomId, roomList, cavern);
+                if (Dice.p(30)) Item.magic(3, 'any', roomId, roomList, cavern);
                 break;
             case 'B':
-                if (cavern.p(75)) Item.coins('cp', cavern.rollSum(5, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(5, 6) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('ep', cavern.rollSum(5, 4) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('gp', cavern.rollSum(3, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.gems(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(25)) Item.jewelry(cavern.roll(1, 6), roomId, roomList, cavern);
-                if (cavern.p(10)) Item.magic(3, 'weapons armor', roomId, roomList, cavern);
+                if (Dice.p(75)) Item.coins('cp', Dice.rollSum(5, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(5, 6) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('ep', Dice.rollSum(5, 4) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('gp', Dice.rollSum(3, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.gems(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(25)) Item.jewelry(Dice.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(10)) Item.magic(3, 'weapons armor', roomId, roomList, cavern);
                 break;
             case 'C':
-                if (cavern.p(60)) Item.coins('cp', cavern.rollSum(6, 6) * 100, roomId, roomList);
-                if (cavern.p(60)) Item.coins('sp', cavern.rollSum(5, 4) * 100, roomId, roomList);
-                if (cavern.p(30)) Item.coins('ep', cavern.rollSum(2, 6) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.gems(cavern.roll(1, 4), roomId, roomList, cavern);
-                if (cavern.p(25)) Item.jewelry(cavern.roll(1, 4), roomId, roomList, cavern);
-                if (cavern.p(15)) Item.magic(Math.floor(Math.random() * 2 + 1), 'any', roomId, roomList, cavern);
+                if (Dice.p(60)) Item.coins('cp', Dice.rollSum(6, 6) * 100, roomId, roomList);
+                if (Dice.p(60)) Item.coins('sp', Dice.rollSum(5, 4) * 100, roomId, roomList);
+                if (Dice.p(30)) Item.coins('ep', Dice.rollSum(2, 6) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.gems(Dice.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(25)) Item.jewelry(Dice.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(15)) Item.magic(Math.floor(Math.random() * 2 + 1), 'any', roomId, roomList, cavern);
                 break;
             case 'D':
-                if (cavern.p(30)) Item.coins('cp', cavern.rollSum(4, 6) * 100, roomId, roomList);
-                if (cavern.p(45)) Item.coins('sp', cavern.rollSum(6, 6) * 100, roomId, roomList);
-                if (cavern.p(90)) Item.coins('gp', cavern.rollSum(5, 8) * 100, roomId, roomList);
-                if (cavern.p(30)) Item.gems(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(30)) Item.jewelry(cavern.roll(1, 8), roomId, roomList, cavern);
-                if (cavern.p(20)) { Item.magic(Math.floor(Math.random() * 2 + 1), 'any', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); }
+                if (Dice.p(30)) Item.coins('cp', Dice.rollSum(4, 6) * 100, roomId, roomList);
+                if (Dice.p(45)) Item.coins('sp', Dice.rollSum(6, 6) * 100, roomId, roomList);
+                if (Dice.p(90)) Item.coins('gp', Dice.rollSum(5, 8) * 100, roomId, roomList);
+                if (Dice.p(30)) Item.gems(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(30)) Item.jewelry(Dice.roll(1, 8), roomId, roomList, cavern);
+                if (Dice.p(20)) { Item.magic(Math.floor(Math.random() * 2 + 1), 'any', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); }
                 break;
             case 'E':
-                if (cavern.p(30)) Item.coins('cp', cavern.rollSum(2, 8) * 100, roomId, roomList);
-                if (cavern.p(60)) Item.coins('sp', cavern.rollSum(6, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('ep', cavern.rollSum(3, 8) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('gp', cavern.rollSum(4, 10) * 100, roomId, roomList);
-                if (cavern.p(10)) Item.gems(cavern.roll(1, 10), roomId, roomList, cavern);
-                if (cavern.p(10)) Item.jewelry(cavern.roll(1, 10), roomId, roomList, cavern);
-                if (cavern.p(30)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.scroll(roomId, roomList); }
+                if (Dice.p(30)) Item.coins('cp', Dice.rollSum(2, 8) * 100, roomId, roomList);
+                if (Dice.p(60)) Item.coins('sp', Dice.rollSum(6, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('ep', Dice.rollSum(3, 8) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('gp', Dice.rollSum(4, 10) * 100, roomId, roomList);
+                if (Dice.p(10)) Item.gems(Dice.roll(1, 10), roomId, roomList, cavern);
+                if (Dice.p(10)) Item.jewelry(Dice.roll(1, 10), roomId, roomList, cavern);
+                if (Dice.p(30)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.scroll(roomId, roomList); }
                 break;
             case 'F':
-                if (cavern.p(40)) Item.coins('sp', cavern.rollSum(3, 8) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('ep', cavern.rollSum(4, 8) * 100, roomId, roomList);
-                if (cavern.p(85)) Item.coins('gp', cavern.rollSum(6, 10) * 100, roomId, roomList);
-                if (cavern.p(70)) Item.coins('pp', cavern.rollSum(2, 8) * 100, roomId, roomList);
-                if (cavern.p(20)) Item.gems(cavern.roll(2, 12), roomId, roomList, cavern);
-                if (cavern.p(10)) Item.jewelry(cavern.roll(1, 12), roomId, roomList, cavern);
-                if (cavern.p(35)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'not weapons', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); Item.scroll(roomId, roomList); }
+                if (Dice.p(40)) Item.coins('sp', Dice.rollSum(3, 8) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('ep', Dice.rollSum(4, 8) * 100, roomId, roomList);
+                if (Dice.p(85)) Item.coins('gp', Dice.rollSum(6, 10) * 100, roomId, roomList);
+                if (Dice.p(70)) Item.coins('pp', Dice.rollSum(2, 8) * 100, roomId, roomList);
+                if (Dice.p(20)) Item.gems(Dice.roll(2, 12), roomId, roomList, cavern);
+                if (Dice.p(10)) Item.jewelry(Dice.roll(1, 12), roomId, roomList, cavern);
+                if (Dice.p(35)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'not weapons', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); Item.scroll(roomId, roomList); }
                 break;
             case 'G':
-                if (cavern.p(90)) Item.coins('gp', cavern.rollSum(4, 6) * 1000, roomId, roomList);
-                if (cavern.p(75)) Item.coins('pp', cavern.rollSum(5, 8) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.gems(cavern.roll(3, 6), roomId, roomList, cavern);
-                if (cavern.p(25)) Item.jewelry(cavern.roll(1, 10), roomId, roomList, cavern);
-                if (cavern.p(50)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.scroll(roomId, roomList); }
+                if (Dice.p(90)) Item.coins('gp', Dice.rollSum(4, 6) * 1000, roomId, roomList);
+                if (Dice.p(75)) Item.coins('pp', Dice.rollSum(5, 8) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.gems(Dice.roll(3, 6), roomId, roomList, cavern);
+                if (Dice.p(25)) Item.jewelry(Dice.roll(1, 10), roomId, roomList, cavern);
+                if (Dice.p(50)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.scroll(roomId, roomList); }
                 break;
             case 'H':
-                if (cavern.p(75)) Item.coins('cp', cavern.rollSum(8, 10) * 100, roomId, roomList);
-                if (cavern.p(75)) Item.coins('sp', cavern.rollSum(6, 10) * 1000, roomId, roomList);
-                if (cavern.p(75)) Item.coins('ep', cavern.rollSum(3, 10) * 1000, roomId, roomList);
-                if (cavern.p(75)) Item.coins('gp', cavern.rollSum(5, 8) * 1000, roomId, roomList);
-                if (cavern.p(75)) Item.coins('pp', cavern.rollSum(9, 8) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.gems(cavern.roll(1, 100), roomId, roomList, cavern);
-                if (cavern.p(50)) Item.jewelry(cavern.roll(10, 4), roomId, roomList, cavern);
-                if (cavern.p(20)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); Item.scroll(roomId, roomList); }
+                if (Dice.p(75)) Item.coins('cp', Dice.rollSum(8, 10) * 100, roomId, roomList);
+                if (Dice.p(75)) Item.coins('sp', Dice.rollSum(6, 10) * 1000, roomId, roomList);
+                if (Dice.p(75)) Item.coins('ep', Dice.rollSum(3, 10) * 1000, roomId, roomList);
+                if (Dice.p(75)) Item.coins('gp', Dice.rollSum(5, 8) * 1000, roomId, roomList);
+                if (Dice.p(75)) Item.coins('pp', Dice.rollSum(9, 8) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.gems(Dice.roll(1, 100), roomId, roomList, cavern);
+                if (Dice.p(50)) Item.jewelry(Dice.roll(10, 4), roomId, roomList, cavern);
+                if (Dice.p(20)) { Item.magic(Math.floor(Math.random() * 4 + 1), 'any', roomId, roomList, cavern); Item.potion(roomId, roomList, cavern); Item.scroll(roomId, roomList); }
                 break;
             case 'I':
-                if (cavern.p(80)) Item.coins('pp', cavern.rollSum(3, 10) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.gems(cavern.roll(2, 6), roomId, roomList, cavern);
-                if (cavern.p(50)) Item.jewelry(cavern.roll(2, 6), roomId, roomList, cavern);
-                if (cavern.p(15)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(80)) Item.coins('pp', Dice.rollSum(3, 10) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.gems(Dice.roll(2, 6), roomId, roomList, cavern);
+                if (Dice.p(50)) Item.jewelry(Dice.roll(2, 6), roomId, roomList, cavern);
+                if (Dice.p(15)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 'J':
-                if (cavern.p(45)) Item.coins('cp', cavern.rollSum(3, 8) * 100, roomId, roomList);
-                if (cavern.p(45)) Item.coins('sp', cavern.rollSum(1, 8) * 100, roomId, roomList);
+                if (Dice.p(45)) Item.coins('cp', Dice.rollSum(3, 8) * 100, roomId, roomList);
+                if (Dice.p(45)) Item.coins('sp', Dice.rollSum(1, 8) * 100, roomId, roomList);
                 break;
             case 'K':
-                if (cavern.p(90)) Item.coins('sp', cavern.rollSum(2, 10) * 100, roomId, roomList);
-                if (cavern.p(35)) Item.coins('ep', cavern.rollSum(1, 8) * 100, roomId, roomList);
+                if (Dice.p(90)) Item.coins('sp', Dice.rollSum(2, 10) * 100, roomId, roomList);
+                if (Dice.p(35)) Item.coins('ep', Dice.rollSum(1, 8) * 100, roomId, roomList);
                 break;
             case 'L':
-                if (cavern.p(50)) Item.gems(cavern.roll(1, 4), roomId, roomList, cavern);
+                if (Dice.p(50)) Item.gems(Dice.roll(1, 4), roomId, roomList, cavern);
                 break;
             case 'M':
-                if (cavern.p(90)) Item.coins('gp', cavern.rollSum(4, 10) * 100, roomId, roomList);
-                if (cavern.p(90)) Item.coins('pp', cavern.rollSum(2, 8) * 1000, roomId, roomList);
-                if (cavern.p(55)) Item.gems(cavern.roll(5, 4), roomId, roomList, cavern);
-                if (cavern.p(45)) Item.jewelry(cavern.roll(1, 6), roomId, roomList, cavern);
+                if (Dice.p(90)) Item.coins('gp', Dice.rollSum(4, 10) * 100, roomId, roomList);
+                if (Dice.p(90)) Item.coins('pp', Dice.rollSum(2, 8) * 1000, roomId, roomList);
+                if (Dice.p(55)) Item.gems(Dice.roll(5, 4), roomId, roomList, cavern);
+                if (Dice.p(45)) Item.jewelry(Dice.roll(1, 6), roomId, roomList, cavern);
                 break;
             case 'N':
-                if (cavern.p(40)) {
-                    for (let i = cavern.rollSum(2, 4); i > 0; i--) Item.potion(roomId, roomList, cavern);
+                if (Dice.p(40)) {
+                    for (let i = Dice.rollSum(2, 4); i > 0; i--) Item.potion(roomId, roomList, cavern);
                 }
                 break;
             case 'O':
-                if (cavern.p(50)) {
+                if (Dice.p(50)) {
                     for (let i = Math.floor(Math.random() * 4 + 1); i > 0; i--) Item.scroll(roomId, roomList);
                 }
                 break;
-            case 'P': Item.coins('cp', cavern.rollSum(3, 8) * 100, roomId, roomList); break;
-            case 'Q': Item.coins('sp', cavern.rollSum(3, 6) * 100, roomId, roomList); break;
-            case 'R': Item.coins('ep', cavern.rollSum(2, 6) * 100, roomId, roomList); break;
-            case 'S': Item.coins('gp', cavern.rollSum(2, 4) * 100, roomId, roomList); break;
-            case 'T': Item.coins('pp', cavern.rollSum(1, 6) * 100, roomId, roomList); break;
+            case 'P': Item.coins('cp', Dice.rollSum(3, 8) * 100, roomId, roomList); break;
+            case 'Q': Item.coins('sp', Dice.rollSum(3, 6) * 100, roomId, roomList); break;
+            case 'R': Item.coins('ep', Dice.rollSum(2, 6) * 100, roomId, roomList); break;
+            case 'S': Item.coins('gp', Dice.rollSum(2, 4) * 100, roomId, roomList); break;
+            case 'T': Item.coins('pp', Dice.rollSum(1, 6) * 100, roomId, roomList); break;
             case 'U':
-                if (cavern.p(50)) Item.coins('cp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('sp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('gp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(5)) Item.gems(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
-                if (cavern.p(5)) Item.jewelry(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
-                if (cavern.p(2)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(50)) Item.coins('cp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('sp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('gp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(5)) Item.gems(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
+                if (Dice.p(5)) Item.jewelry(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
+                if (Dice.p(2)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
             case 'V':
-                if (cavern.p(25)) Item.coins('sp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('ep', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(50)) Item.coins('gp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(25)) Item.coins('pp', cavern.rollSum(1, 20) * 100, roomId, roomList);
-                if (cavern.p(10)) Item.gems(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
-                if (cavern.p(10)) Item.jewelry(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
-                if (cavern.p(5)) Item.magic(1, 'any', roomId, roomList, cavern);
+                if (Dice.p(25)) Item.coins('sp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('ep', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(50)) Item.coins('gp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(25)) Item.coins('pp', Dice.rollSum(1, 20) * 100, roomId, roomList);
+                if (Dice.p(10)) Item.gems(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
+                if (Dice.p(10)) Item.jewelry(Math.floor(Math.random() * 4 + 1), roomId, roomList, cavern);
+                if (Dice.p(5)) Item.magic(1, 'any', roomId, roomList, cavern);
                 break;
         }
     }

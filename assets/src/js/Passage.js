@@ -1,4 +1,6 @@
+import { Dice } from './Dice.js';
 import { Trap } from './Trap.js';
+import { Cavern } from './Cavern.js';
 
 export class Passage {
     /**
@@ -35,10 +37,10 @@ export class Passage {
 
         p.start = roomId;
         p.end = null;
-        p.length = Math.max(5, Math.round(cavern.roll(4, 100, 3) / 5) * 5);
+        p.length = Math.max(5, Math.round(Dice.roll(4, 100, 3) / 5) * 5);
 
         // Determine passage lighting level
-        const light = Math.floor(Math.random() * 100) + 1;
+        const light = Dice.roll(1, 100);
         if (light <= 75) p.light = 0;
         else if (light <= 95) p.light = 0.5;
         else p.light = 1;
@@ -49,7 +51,7 @@ export class Passage {
 
         // Ensure consistency if secret doors are generated
         if (p.startDoor === 'secret door' || p.endDoor === 'secret door') {
-            if (Math.random() < 0.9) {
+            if (Dice.p(90)) {
                 p.startDoor = 'secret door';
                 p.endDoor = 'secret door';
             }
@@ -60,7 +62,7 @@ export class Passage {
         p.endLocation = Passage.getLocation(cavern);
 
         // Level-based check for passage traps
-        if (Math.floor(Math.random() * 20) + 1 <= level) {
+        if (Dice.roll(1, 20) <= level) {
             p.trapped = true;
             p.trap = Trap.get(cavern);
         }
@@ -74,7 +76,7 @@ export class Passage {
      * @returns {string} Door type name.
      */
     static getDoor(cavern) {
-        const roll = cavern.roll(1, 4, 2);
+        const roll = Dice.roll(1, 4, 2);
         switch (roll) {
             case 1: return 'stuck door';
             case 2: return 'open doorway';
@@ -90,7 +92,7 @@ export class Passage {
      * @returns {string} Location name.
      */
     static getLocation(cavern) {
-        const roll = cavern.roll(1, 6, 2);
+        const roll = Dice.roll(1, 6, 2);
         switch (roll) {
             case 1: return 'floor';
             case 2: return 'north wall';

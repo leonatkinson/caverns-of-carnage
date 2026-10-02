@@ -1,3 +1,4 @@
+import { Dice } from './Dice.js';
 import { Cavern } from './Cavern.js';
 import { Map } from './Map.js';
 import { Manual } from './Manual.js';
@@ -87,8 +88,8 @@ window.initCavernsOfCarnage = function(container) {
                     if (room.hasStairsDown && room.stairsDownSentence) {
                         const deeperLevels = allGeneratedLevels.filter(l => l.level > lvlData.level);
                         if (deeperLevels.length > 0) {
-                            const targetLevelObj = deeperLevels[Math.floor(Math.random() * deeperLevels.length)];
-                            const targetRoom = targetLevelObj.roomList[Math.floor(Math.random() * targetLevelObj.roomList.length)];
+                            const targetLevelObj = Dice.chooseOne(deeperLevels);
+                            const targetRoom = Dice.chooseOne(targetLevelObj.roomList);
 
                             const downText = "Stairs going down to room " + (targetRoom.id + 1) + " on level " + targetLevelObj.level + ".";
                             if (room.description.includes(room.stairsDownSentence)) {

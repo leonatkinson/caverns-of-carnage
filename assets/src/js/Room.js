@@ -1,8 +1,10 @@
+import { Dice } from './Dice.js';
 import { Passage } from './Passage.js';
 import { Monster } from './Monster.js';
 import { Npc } from './Npc.js';
 import { Item } from './Item.js';
 import { Trap } from './Trap.js';
+import { Cavern } from './Cavern.js';
 
 export class Room {
     /**
@@ -40,12 +42,12 @@ export class Room {
         r.id = window.cocRoomList.length;
 
         // Roll randomized dimensions and height for the room
-        r.width = Math.max(5, Math.round((Math.floor(Math.random() * 46) + 5) / 5) * 5);
-        r.depth = Math.max(5, Math.round((Math.floor(Math.random() * 46) + 5) / 5) * 5);
-        r.height = Math.max(5, Math.round(cavern.roll(4, 12, 4) / 5) * 5);
+        r.width = Math.max(5, Math.round(Dice.roll(5, 50) / 5) * 5);
+        r.depth = Math.max(5, Math.round(Dice.roll(5, 50) / 5) * 5);
+        r.height = Math.max(5, Math.round(Dice.roll(4, 12, 4) / 5) * 5);
 
         // Determine room lighting level (dark, dim, or bright)
-        const light = Math.floor(Math.random() * 100) + 1;
+        const light = Dice.roll(1, 100);
         if (light <= 50) r.light = 0;
         else if (light <= 75) r.light = 0.5;
         else r.light = 1;
@@ -56,29 +58,29 @@ export class Room {
         r.description = 'The room is ' + r.width + '&prime;&times;' + r.depth + '&prime; with a ' + r.height + '&prime; ceiling.';
 
         // Random chance for stairs leading down or up
-        if (cavern.p(10)) {
+        if (Dice.p(10)) {
             r.hasStairsDown = true;
             r.stairsDownSentence = Room.stairs('down', cavern);
             r.description += ' ' + r.stairsDownSentence;
         }
-        if (cavern.p(10)) {
+        if (Dice.p(10)) {
             r.hasStairsUp = true;
             r.stairsUpSentence = Room.stairs('up', cavern);
             r.description += ' ' + r.stairsUpSentence;
         }
 
         // Roll for room contents (monsters, treasure, traps, or empty)
-        const roll = Math.floor(Math.random() * 20) + 1;
+        const roll = Dice.roll(1, 20);
         if (roll <= 12) {
             // Room is empty
         } else if (roll <= 16) {
-            if (cavern.p(25)) {
+            if (Dice.p(25)) {
                 Npc.makeNpcPartyByLevel(r.id, level, window.cocRoomList, cavern);
             } else {
                 Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
             }
         } else if (roll <= 18) {
-            if (cavern.p(25)) {
+            if (Dice.p(25)) {
                 Npc.makeNpcPartyByLevel(r.id, level, window.cocRoomList, cavern);
             } else {
                 Monster.makeMonsterByLevel(r.id, level, window.cocRoomList, cavern);
@@ -92,12 +94,12 @@ export class Room {
         }
 
         // Small chance for miscellaneous room feature or extra detail
-        if (Math.floor(Math.random() * 20) + 1 === 1) {
+        if (Dice.roll(1, 20) === 1) {
             r.description += ' ' + Room.extra(cavern);
         }
 
         // Level-based chance for an additional trap
-        if (Math.floor(Math.random() * 20) + 1 <= level) {
+        if (Dice.roll(1, 20) <= level) {
             r.trapped = true;
             r.trap = Trap.get(cavern);
         }
@@ -116,15 +118,15 @@ export class Room {
         const doorspace = Math.max(4, Math.floor(circumference / 20));
         if (this.outlets.length < doorspace) {
             const chanceOfPassage = Math.floor(100 / (this.outlets.length + 1));
-            if (Math.floor(Math.random() * 100) + 1 <= chanceOfPassage) {
+            if (Dice.p(chanceOfPassage)) {
                 const passage = Passage.generate(this.id, level, window.cocRoomList, cavern);
                 this.outlets.push(passage.id);
             }
         }
 
         // Random chance to create a cross-connection to an existing room
-        if (Math.floor(Math.random() * 100) + 1 <= 25) {
-            const roomId = Math.floor(Math.random() * window.cocRoomList.length);
+        if (Dice.p(25)) {
+            const roomId = Dice.roll(0, window.cocRoomList.length - 1);
             const rejectedRooms = [this.id];
             for (const passageId of this.outlets) {
                 const passage = window.cocPassageList[passageId];
@@ -147,7 +149,7 @@ export class Room {
      * @returns {string} The stairs description.
      */
     static stairs(dir, cavern) {
-        const wide = cavern.roll(3, 10, 4) + ' foot wide';
+        const wide = Dice.roll(3, 10, 4) + ' foot wide';
         const choices = {};
         choices['A ' + wide + ' spiral staircase leads ' + dir + '.'] = 5;
         choices[' ' + wide + ' stone stairs climb ' + dir + ', out of the room.'] = 10;
@@ -167,7 +169,7 @@ export class Room {
         choices['A poorly-secured rope dangles through a hole in the ' + (dir === 'up' ? 'ceiling' : 'floor') + '.'] = 1;
         choices['Thick roots can be seen growing inside a hole in the ' + (dir === 'up' ? 'ceiling' : 'floor') + '.'] = 1;
 
-        return cavern.chooseOneWeighted(choices) + ' ';
+        return Dice.chooseOneWeighted(choices) + ' ';
     }
 
     /**
@@ -198,8 +200,8 @@ export class Room {
             'Words and pictures mark the territory in favor of some faction.',
             'Words and pictures warn of danger elsewhere in the caverns.',
             'A clean path with a faint sheen crosses the chamber.',
-            'Water floods the chamber to ' + Math.floor(Math.random() * 24 + 1) + ' inches deep.',
-            'Mud covers the chamber floor ' + Math.floor(Math.random() * 24 + 1) + ' inches deep.',
+            'Water floods the chamber to ' + Dice.roll(1, 24) + ' inches deep.',
+            'Mud covers the chamber floor ' + Dice.roll(1, 24) + ' inches deep.',
             'Dried blood pools on the floor.',
             'Dried blood was left spattered on a wall.',
             'Patches of fungus grow around the edges of the room.',
@@ -213,8 +215,8 @@ export class Room {
             'Fog fills the chamber, reducing visibility to 5 feet or less.',
             'Part of the room is magically dark.',
             'Part of the room glows with magical light.',
-            'The room is ' + (Math.floor(Math.random() * 4 + 1) * 10) + 'F hotter than other areas.',
-            'Every 10 minutes, there is a ' + Math.floor(Math.random() * 4 + 1) + ' in 6 chance a harmless jet of steam or water emerges from a hole in the floor.',
+            'The room is ' + (Dice.roll(1, 4) * 10) + 'F hotter than other areas.',
+            'Every 10 minutes, there is a ' + Dice.roll(1, 4) + ' in 6 chance a harmless jet of steam or water emerges from a hole in the floor.',
             'Several burial nooks hold mummys or coffins.',
             'Iron pins hold manacles to the wall.',
             'A pile of rusting weapons sits fused into a single mass.',
@@ -239,7 +241,7 @@ export class Room {
             'Fossilized sea creatures protrude from the walls.',
             'A vein of metal slices down one wall.'
         ];
-        return cavern.chooseOne(description);
+        return Dice.chooseOne(description);
     }
 
     /**
@@ -254,6 +256,6 @@ export class Room {
             'Pantry', 'Storage', 'Armory', 'Guardhouse', 'Chapel',
             'Torture Chamber', 'Prison', 'Animal Pen', 'Treasury', 'Library'
         ];
-        return cavern.chooseOne(description);
+        return Dice.chooseOne(description);
     }
 }

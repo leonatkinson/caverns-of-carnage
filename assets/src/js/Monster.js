@@ -1,4 +1,6 @@
+import { Dice } from './Dice.js';
 import { Item } from './Item.js';
+import { Cavern } from './Cavern.js';
 
 export class Monster {
     static roster = [
@@ -210,7 +212,7 @@ export class Monster {
 
         // If placing in a room, attempt to reuse an existing monster type from current level or above 25% of the time
         if (roomId !== null) {
-            const useExistingType = cavern && typeof cavern.p === 'function' ? cavern.p(25) : (Math.random() < 0.25);
+            const useExistingType = cavern && typeof cavern.p === 'function' ? Dice.p(25) : (Math.random() < 0.25);
             if (useExistingType) {
                 const candidateNames = [];
                 // Collect monster names from other rooms on this level
@@ -261,10 +263,7 @@ export class Monster {
 
                 // Choose a valid candidate monster type if available
                 if (validCandidates.length > 0) {
-                    const chooseFn = cavern && typeof cavern.chooseOne === 'function'
-                        ? cavern.chooseOne.bind(cavern)
-                        : (choices => choices[Math.floor(Math.random() * choices.length)]);
-                    m = chooseFn(validCandidates);
+                    m = Dice.chooseOne(validCandidates);
                 }
             }
         }
@@ -272,7 +271,7 @@ export class Monster {
         // Fall back to picking a random monster from roster within max HD limit
         if (!m) {
             do {
-                m = Monster.roster[Math.floor(Math.random() * Monster.roster.length)];
+                m = Dice.chooseOne(Monster.roster);
             } while (parseInt(m[0], 10) > maxHD);
         }
 
@@ -280,7 +279,7 @@ export class Monster {
         const monster = Monster.generate(roomId, roomList);
         monster.name = m[1];
         monster.statBlock = m[7];
-        monster.appearing = cavern.computeRoll(m[3]);
+        monster.appearing = Dice.computeRoll(m[3]);
         if (monster.appearing <= 0) monster.appearing = 1;
 
         // Scale number appearing if level exceeds monster HD requirement
@@ -310,7 +309,7 @@ export class Monster {
 
         // Roll hit points for each individual monster in the group and generate lair treasure
         for (let i = 0; i < monster.appearing; i++) {
-            monster.hp.push(cavern.computeRoll(m[2]));
+            monster.hp.push(Dice.computeRoll(m[2]));
             if (roomId !== null) {
                 m[5].split(',').forEach(t => {
                     t = t.trim();
@@ -350,7 +349,7 @@ export class Monster {
 
         // Roll hit points and treasure for warriors
         for (let i = 0; i < monster.appearing; i++) {
-            monster.hp.push(cavern.computeRoll(warrior[1]));
+            monster.hp.push(Dice.computeRoll(warrior[1]));
             if (roomId !== null) {
                 warrior[2].split(',').forEach(t => {
                     t = t.trim();

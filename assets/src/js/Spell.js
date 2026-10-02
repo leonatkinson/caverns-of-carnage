@@ -1,3 +1,6 @@
+import { Dice } from './Dice.js';
+import { Cavern } from './Cavern.js';
+
 export class Spell {
     /** Spell slot progression chart mapping character levels to available slots per tier (tiers 0-6). */
     static progressionChart = [
@@ -87,7 +90,7 @@ export class Spell {
 
             const freqMap = {};
             while (count > 0) {
-                const sp = tierSpells[Math.floor(Math.random() * tierSpells.length)];
+                const sp = Dice.chooseOne(tierSpells);
                 freqMap[sp] = (freqMap[sp] || 0) + 1;
                 count--;
             }
@@ -122,7 +125,7 @@ export class Spell {
             for (const tier in Spell.scrollTierWeights) {
                 totalWeight += Spell.scrollTierWeights[tier];
             }
-            let roll = Math.floor(Math.random() * totalWeight) + 1;
+            let roll = Dice.roll(1, totalWeight);
             let selectedTier = 1;
             for (const tier in Spell.scrollTierWeights) {
                 roll -= Spell.scrollTierWeights[tier];
@@ -132,7 +135,7 @@ export class Spell {
 
             const tierSpells = db[selectedTier] || db[1];
             if (tierSpells && tierSpells.length > 0) {
-                const sp = tierSpells[Math.floor(Math.random() * tierSpells.length)];
+                const sp = Dice.chooseOne(tierSpells);
                 scrollSpells.push(sp);
             }
         }

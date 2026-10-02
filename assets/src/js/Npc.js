@@ -1,3 +1,4 @@
+import { Dice } from './Dice.js';
 import { Item } from './Item.js';
 
 export class Npc {
@@ -101,10 +102,10 @@ export class Npc {
      * @returns {Npc} The first generated NPC in the party.
      */
     static makeNpcPartyByLevel(roomId = null, level = 1, roomList, cavern) {
-        const numFighters = cavern.roll(1, 3, 1);
-        const numThieves = cavern.roll(1, 2, 1);
-        const numClerics = cavern.roll(1, 2, 1);
-        const numMUs = Math.max(0, cavern.roll(1, 2, 1) - 1);
+        const numFighters = Dice.roll(1, 3, 1);
+        const numThieves = Dice.roll(1, 2, 1);
+        const numClerics = Dice.roll(1, 2, 1);
+        const numMUs = Math.max(0, Dice.roll(1, 2, 1) - 1);
 
         const classes = [];
         for (let i = 0; i < numFighters; i++) classes.push('Fighter');
@@ -131,11 +132,11 @@ export class Npc {
      */
     static buildCharacter(npc, targetLevel, cavern) {
         // Choose random name from centralized constant names array
-        npc.name = cavern.chooseOne(Npc.names);
+        npc.name = Dice.chooseOne(Npc.names);
 
         let intermediateLevel = targetLevel;
-        if (cavern.p(30)) {
-            intermediateLevel = Math.max(cavern.roll(1, targetLevel), cavern.roll(1, targetLevel));
+        if (Dice.p(30)) {
+            intermediateLevel = Math.max(Dice.roll(1, targetLevel), Dice.roll(1, targetLevel));
         }
 
         const classProg = Npc.progressionTable[npc.className] || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -143,7 +144,7 @@ export class Npc {
         npc.level = classProg[lvlIdx];
         if (npc.level === 0) npc.level = 1;
 
-        const roll3d6 = () => cavern.rollSum(3, 6);
+        const roll3d6 = () => Dice.rollSum(3, 6);
         npc.stats.STR = roll3d6();
         npc.stats.INT = roll3d6();
         npc.stats.WIS = roll3d6();
@@ -174,13 +175,13 @@ export class Npc {
         npc.stats.CHA_mod = getMod(npc.stats.CHA);
 
         npc.race = 'Human';
-        if (cavern.p(25)) {
+        if (Dice.p(25)) {
             const eligible = [];
             if (npc.stats.CON >= 9 && npc.className !== 'Magic-User') eligible.push('Dwarf');
             if (npc.stats.INT >= 9) eligible.push('Elf');
             if (npc.stats.DEX >= 9 && npc.className !== 'Magic-User') eligible.push('Halfling');
             if (eligible.length > 0) {
-                npc.race = cavern.chooseOne(eligible);
+                npc.race = Dice.chooseOne(eligible);
             }
         }
         if (npc.race === 'Dwarf' && npc.stats.CHA > 17) npc.stats.CHA = 17;
@@ -193,7 +194,7 @@ export class Npc {
         let hpTotal = 0;
         const effectiveLevel = npc.level;
         for (let l = 1; l <= Math.min(effectiveLevel, 9); l++) {
-            let rollHp = cavern.computeRoll('1d' + sides) + npc.stats.CON_mod;
+            let rollHp = Dice.computeRoll('1d' + sides) + npc.stats.CON_mod;
             if (rollHp < 1) rollHp = 1;
             hpTotal += rollHp;
         }
@@ -226,15 +227,15 @@ export class Npc {
             npc.mv = "30'";
         } else {
             const armors = ['leather armor', 'chain mail', 'plate mail'];
-            armorName = cavern.chooseOne(armors);
+            armorName = Dice.chooseOne(armors);
             if (armorName === 'leather armor') { baseAc = 13; npc.mv = "30'"; }
             else if (armorName === 'chain mail') { baseAc = 15; npc.mv = "20'"; }
             else { baseAc = 17; npc.mv = "20'"; }
         }
 
         const armorChance = npc.className === 'Magic-User' ? Math.min(95, npc.level * 4) : Math.min(95, npc.level * 5);
-        if (armorName && cavern.p(armorChance)) {
-            const bonus = cavern.roll(1, 3);
+        if (armorName && Dice.p(armorChance)) {
+            const bonus = Dice.roll(1, 3);
             armorName += ' +' + bonus;
             baseAc += bonus;
             npc.mv = "40'";
@@ -244,8 +245,8 @@ export class Npc {
         let shieldBonus = 0;
         if ((npc.className === 'Cleric' || npc.className === 'Fighter') && npc.level >= 1) {
             const shieldChance = Math.min(95, npc.level * 5);
-            if (cavern.p(shieldChance)) {
-                const sBonus = cavern.roll(1, 3);
+            if (Dice.p(shieldChance)) {
+                const sBonus = Dice.roll(1, 3);
                 shieldBonus = 1 + sBonus;
                 npc.equipment.push('shield +' + sBonus);
             } else {
@@ -255,13 +256,13 @@ export class Npc {
         }
 
         const wList = Npc.weaponMap[npc.className] || ['longsword'];
-        let weapon = cavern.chooseOne(wList);
+        let weapon = Dice.chooseOne(wList);
         npc.at = '1 ' + weapon;
         npc.dam = weapon === 'great axe' || weapon === 'two-handed sword' || weapon === 'pole arm' ? '1d10' : (weapon === 'maul' ? '1d10' : (weapon === 'mace' || weapon === 'longsword' || weapon === 'battle axe' || weapon === 'scimitar' ? '1d8' : '1d6'));
 
         const weaponChance = npc.className === 'Magic-User' ? Math.min(95, npc.level * 3) : Math.min(95, npc.level * 5);
-        if (cavern.p(weaponChance)) {
-            const wBonus = cavern.roll(1, 3);
+        if (Dice.p(weaponChance)) {
+            const wBonus = Dice.roll(1, 3);
             weapon += ' +' + wBonus;
         }
         npc.equipment.push(weapon);
@@ -273,12 +274,12 @@ export class Npc {
             const spellCount = Math.max(1, Math.min(npc.level, 5));
             const selectedSpells = [];
             for (let s = 0; s < spellCount; s++) {
-                const sp = cavern.chooseOne(pool);
+                const sp = Dice.chooseOne(pool);
                 if (!selectedSpells.includes(sp)) {
                     selectedSpells.push(sp);
                 }
             }
-            if (selectedSpells.length > 0 && cavern.p(50)) {
+            if (selectedSpells.length > 0 && Dice.p(50)) {
                 selectedSpells[0] = '2x ' + selectedSpells[0];
             }
             npc.spells = selectedSpells;
