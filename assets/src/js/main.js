@@ -20,6 +20,19 @@ window.initCavernsOfCarnage = function(container) {
     if (!generateBtn) return;
 
     let allGeneratedLevels = [];
+    let activeLevelData = null;
+    let activeCy = null;
+
+    function saveCurrentPositions() {
+        if (activeLevelData && activeCy) {
+            if (!activeLevelData.nodePositions) {
+                activeLevelData.nodePositions = {};
+            }
+            activeCy.nodes().forEach(node => {
+                activeLevelData.nodePositions[node.id()] = node.position();
+            });
+        }
+    }
 
     /**
      * Event listener for the dungeon generation button click.
@@ -104,7 +117,7 @@ window.initCavernsOfCarnage = function(container) {
             window.cocItemList = lvlData.itemList;
             Cavern.wanderingMonsters = lvlData.wanderingMonsters;
 
-            const cy = Map.render(tempContainer);
+            const cy = Map.render(tempContainer, lvlData);
             lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
         });
 
@@ -123,6 +136,7 @@ window.initCavernsOfCarnage = function(container) {
             tabBtn.className = 'coc-tab-btn' + (index === 0 ? ' active' : '');
             tabBtn.textContent = 'Level ' + lvlData.level;
             tabBtn.addEventListener('click', function() {
+                saveCurrentPositions();
                 container.querySelectorAll('.coc-tab-btn').forEach(b => b.classList.remove('active'));
                 tabBtn.classList.add('active');
                 renderLevel(lvlData);
@@ -140,6 +154,33 @@ window.initCavernsOfCarnage = function(container) {
     if (downloadBtn) {
         downloadBtn.addEventListener('click', function() {
             if (!allGeneratedLevels || allGeneratedLevels.length === 0) return;
+
+            saveCurrentPositions();
+
+            // Re-render map images for each level into base64 PNG exports using latest nodePositions
+            const tempContainer = document.createElement('div');
+            tempContainer.style.width = '1200px';
+            tempContainer.style.height = '800px';
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            document.body.appendChild(tempContainer);
+
+            allGeneratedLevels.forEach(lvlData => {
+                window.cocRoomList = lvlData.roomList;
+                window.cocPassageList = lvlData.passageList;
+                window.cocMonsterList = lvlData.monsterList;
+                window.cocItemList = lvlData.itemList;
+                Cavern.wanderingMonsters = lvlData.wanderingMonsters;
+
+                const cy = Map.render(tempContainer, lvlData);
+                lvlData.mapPng = cy.png({ output: 'base64', bg: '#ffffff', scale: 2, full: true });
+            });
+
+            document.body.removeChild(tempContainer);
+
+            if (activeLevelData) {
+                renderLevel(activeLevelData);
+            }
 
             // Construct Word/HTML document markup wrapper and styles
             let htmlDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -196,6 +237,9 @@ window.initCavernsOfCarnage = function(container) {
      * @param {Object} lvlData - Level data object.
      */
     function renderLevel(lvlData) {
+        saveCurrentPositions();
+        activeLevelData = lvlData;
+
         // Load level data into global scope
         window.cocRoomList = lvlData.roomList;
         window.cocPassageList = lvlData.passageList;
@@ -205,7 +249,7 @@ window.initCavernsOfCarnage = function(container) {
 
         outputDiv.style.display = 'block';
         setTimeout(() => {
-            Map.render(mapDiv);
+            activeCy = Map.render(mapDiv, lvlData);
             manualDiv.innerHTML = Manual.getHtml(lvlData.level);
         }, 50);
     }

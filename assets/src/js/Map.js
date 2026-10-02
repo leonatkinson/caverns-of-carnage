@@ -7,7 +7,7 @@ export class Map {
      * @param {HTMLElement} container - DOM container element.
      * @returns {Object} The Cytoscape instance.
      */
-    static render(container) {
+    static render(container, lvlData = null) {
         const elements = [];
 
         // Build graph nodes for each room with lighting and dimension styling
@@ -52,7 +52,8 @@ export class Map {
         // Clear container and initialize Cytoscape graph renderer
         container.innerHTML = '';
         const cy = cytoscape({
-            container: container,
+            container: (container && container.clientWidth) ? container : undefined,
+            headless: !(container && container.clientWidth),
             elements: elements,
             style: [
                 {
@@ -97,18 +98,53 @@ export class Map {
             ]
         });
 
-        // Resize and run breadth-first layout simulation
+        // Resize and run layout simulation or apply saved custom positions
         cy.resize();
-        cy.layout({
-            name: 'breadthfirst',
-            directed: false,
-            roots: '#Room0',
-            spacingFactor: 1.8,
-            avoidOverlap: true,
-            padding: 24,
-            fit: true,
-            nodeDimensionsIncludeLabels: true
-        }).run();
+        if (lvlData && lvlData.hasCustomPositions && lvlData.nodePositions && Object.keys(lvlData.nodePositions).length > 0) {
+            cy.batch(() => {
+                cy.nodes().forEach(node => {
+                    if (lvlData.nodePositions[node.id()]) {
+                        node.position(lvlData.nodePositions[node.id()]);
+                    }
+                });
+            });
+            cy.fit(undefined, 50);
+        } else {
+            cy.layout({
+                name: 'breadthfirst',
+                directed: false,
+                roots: '#Room0',
+                spacingFactor: 1.8,
+                avoidOverlap: true,
+                padding: 24,
+                fit: true,
+                nodeDimensionsIncludeLabels: true
+            }).run();
+
+            if (lvlData) {
+                if (!lvlData.nodePositions) {
+                    lvlData.nodePositions = {};
+                }
+                cy.nodes().forEach(node => {
+                    lvlData.nodePositions[node.id()] = node.position();
+                });
+            }
+        }
+
+        if (lvlData) {
+            const updatePositions = function() {
+                lvlData.hasCustomPositions = true;
+                if (!lvlData.nodePositions) {
+                    lvlData.nodePositions = {};
+                }
+                cy.nodes().forEach(node => {
+                    lvlData.nodePositions[node.id()] = node.position();
+                });
+            };
+
+            cy.on('free', 'node', updatePositions);
+            cy.on('dragfree', 'node', updatePositions);
+        }
 
         return cy;
     }
