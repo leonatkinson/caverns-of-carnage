@@ -59,9 +59,10 @@ export class Map {
                 left: 0
             });
         }
+        const isTest = typeof process !== 'undefined' && process.env && process.env.VITEST;
         const cy = cytoscape({
-            container: (container && container.clientWidth && !process.env.VITEST) ? container : undefined,
-            headless: !!process.env.VITEST || !(container && container.clientWidth),
+            container: (container && container.clientWidth && !isTest) ? container : undefined,
+            headless: isTest || !(container && container.clientWidth),
             elements: elements,
             style: [
                 {
