@@ -7,7 +7,8 @@
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch",
     "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "format": "prettier --write assets/src/js"
   },
   "keywords": [
     "wordpress",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.3",
     "happy-dom": "^20.14.5",
+    "prettier": "^3.9.9",
     "vitest": "^5.0.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
