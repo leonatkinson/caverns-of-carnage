@@ -1243,7 +1243,7 @@ export class Npc {
     "Oniaha",
     "Elasia",
     "Ashona",
-    "Bew-----",
+    "Bew",
     "Tialus",
     "Sililai",
     "Elah",
