@@ -20,6 +20,12 @@ This plugin adds a Gutenberg block that creates an interactive form for generati
 
 ## Installation
 
-1. Copy the entire plugin folder into `wp-content/plugins`.
+1. Copy the entire plugin folder into `wp-content/plugins`. Alternatively, use `wp-cli` to install the plugin
+   like this: `wp plugin install --force https://github.com/leonatkinson/caverns-of-carnage/archive/refs/heads/master.zip`
 2. Activate the plugin in WordPress.
 3. Place the **Caverns of Carnage Dungeon Generator** block on any page or post.
+
+## Changelog
+
+### 1.0.0
+* Initial Release
