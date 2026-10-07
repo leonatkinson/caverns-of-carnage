@@ -65,6 +65,14 @@ export class Room {
       r.height +
       "&prime; ceiling.";
 
+    if (r.light === 0) {
+      r.description += " The room is dark.";
+    } else if (r.light === 0.5) {
+      r.description += " The room is dimly-lit.";
+    } else {
+      r.description += " The room is well-lit.";
+    }
+
     // Random chance for stairs leading down or up
     if (Dice.p(10)) {
       r.hasStairsDown = true;

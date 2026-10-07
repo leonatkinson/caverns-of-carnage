@@ -62,7 +62,10 @@ export class Passage {
     p.endLocation = Passage.getLocation(cavern);
 
     // Determine door details (open/closed, opening direction, hinges)
-    const startDetails = Passage.generateDoorDetails(p.startLocation);
+    const startDetails = Passage.generateDoorDetails(
+      p.startDoor,
+      p.startLocation,
+    );
     p.startDoorOpen = startDetails.isOpen;
     p.startDoorIsOpen = startDetails.open;
     p.startDoorState = startDetails.state;
@@ -72,7 +75,7 @@ export class Passage {
     p.startDoorHingeSide = startDetails.hingeSide;
     p.startDoorDetails = startDetails;
 
-    const endDetails = Passage.generateDoorDetails(p.endLocation);
+    const endDetails = Passage.generateDoorDetails(p.endDoor, p.endLocation);
     p.endDoorOpen = endDetails.isOpen;
     p.endDoorIsOpen = endDetails.open;
     p.endDoorState = endDetails.state;
@@ -159,11 +162,23 @@ export class Passage {
 
   /**
    * Generates door state (open/closed), opening direction, and hinge placement.
+   * @param {string} doorType - Door type.
    * @param {string} location - Door location wall.
    * @returns {Object} Door details object.
    */
-  static generateDoorDetails(location) {
-    const isOpen = Dice.p(33);
+  static generateDoorDetails(doorType, location) {
+    const t = String(doorType).toLowerCase();
+    if (t === "open doorway" || t === "none") {
+      return {
+        isOpen: true,
+        open: true,
+        state: "open",
+        opening: "",
+        hinges: "",
+      };
+    }
+    // Treat all secret doors as closed
+    const isOpen = t === "secret door" ? false : Dice.p(33);
     const opening = Dice.p(50) ? "into the room" : "out of the room";
     const loc = String(location).toLowerCase();
     let hinges = "east";

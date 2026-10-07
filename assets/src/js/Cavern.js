@@ -109,6 +109,37 @@ export class Cavern {
       }
     });
 
+    // Check lighting exception for dark rooms with open doors/doorways leading to well-lit passages
+    window.cocRoomList.forEach((r) => {
+      if (r.light === 0) {
+        for (const passageId of r.outlets) {
+          const pass = window.cocPassageList[passageId];
+          if (!pass || pass.light <= 0.9) continue;
+          const isStart = pass.start === r.id;
+          const doorType = isStart ? pass.startDoor : pass.endDoor;
+          const location = isStart ? pass.startLocation : pass.endLocation;
+          const isOpen = isStart ? pass.startDoorOpen : pass.endDoorOpen;
+
+          const t = String(doorType).toLowerCase();
+          const isOpenDoorway = t === "open doorway";
+          const isOpenDoor =
+            isOpen &&
+            t !== "secret door" &&
+            t !== "open doorway" &&
+            t !== "none";
+
+          if (isOpenDoorway || isOpenDoor) {
+            const noun = isOpenDoorway ? "open doorway" : "door";
+            r.description = r.description.replace(
+              " The room is dark.",
+              ` The room has no light source except for the dim light coming in from the ${noun} on the ${location}.`,
+            );
+            break;
+          }
+        }
+      }
+    });
+
     // Populate wandering monsters table for this cavern level
     const tableSizeChoices = [0, 4, 6, 8, 10, 12, 20];
     const tableSize = Dice.chooseOne(tableSizeChoices);

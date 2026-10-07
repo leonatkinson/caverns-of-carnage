@@ -143,14 +143,32 @@ export class Manual {
   }
 
   /**
-   * Formats a door description with its type and location.
+   * Formats a door description with its type, location, state, swing, and hinges.
    * @param {string} type - Door type.
    * @param {string} location - Door location.
+   * @param {boolean} isOpen - Whether door is open.
+   * @param {string} opening - Opening direction.
+   * @param {string} hinges - Hinge placement.
    * @returns {string} Formatted door description.
    */
-  static getDoorDescription(type, location) {
-    // Capitalize door type and combine with location
-    return type.charAt(0).toUpperCase() + type.slice(1) + " on the " + location;
+  static getDoorDescription(
+    type,
+    location,
+    isOpen = false,
+    opening = "into the room",
+    hinges = "east",
+  ) {
+    const t = String(type).toLowerCase();
+    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+    if (t === "open doorway") {
+      return "Open doorway on the " + location;
+    }
+    const state = t === "secret door" ? "Closed" : isOpen ? "Open" : "Closed";
+    let desc = state + " " + capitalizedType + " on the " + location;
+    if (opening && hinges) {
+      desc += " swings " + opening + " with hinges on the " + hinges + " side";
+    }
+    return desc;
   }
 
   /**
@@ -228,12 +246,21 @@ export class Manual {
             Manual.getDoorDescription(
               passage.startDoor,
               passage.startLocation,
+              passage.startDoorOpen,
+              passage.startDoorOpening,
+              passage.startDoorHinges,
             ) +
             " to Room " +
             (passage.end + 1);
         } else {
           exit =
-            Manual.getDoorDescription(passage.endDoor, passage.endLocation) +
+            Manual.getDoorDescription(
+              passage.endDoor,
+              passage.endLocation,
+              passage.endDoorOpen,
+              passage.endDoorOpening,
+              passage.endDoorHinges,
+            ) +
             " to Room " +
             (passage.start + 1);
         }

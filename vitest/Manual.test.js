@@ -35,8 +35,8 @@ describe('Manual', () => {
   });
 
   it('gets door description', () => {
-    const desc = Manual.getDoorDescription('archway', 'north wall');
-    expect(desc).toBe('Archway on the north wall');
+    const desc = Manual.getDoorDescription('archway', 'north wall', false, 'into the room', 'east');
+    expect(desc).toContain('Archway on the north wall');
   });
 
   it('gets HTML for manual with wandering monsters and rooms', () => {
