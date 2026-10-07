@@ -13,6 +13,7 @@ export class Room {
   constructor() {
     this.id = 0;
     this.name = "Room";
+    this.purpose = null;
     this.description = "";
     this.outlets = [];
     this.width = 0;

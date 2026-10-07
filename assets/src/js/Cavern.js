@@ -82,9 +82,11 @@ export class Cavern {
     window.cocRoomList.forEach((r) => {
       if (r.name === "Entrance") return;
       let name = "";
+      let purpose = null;
       if (r.trapped) name += "Trapped ";
       if (Dice.p(50)) {
-        name += Room.purpose(this);
+        purpose = Room.purpose(this);
+        name += purpose;
       } else if (r.monsters.length > 0) {
         const monster = window.cocMonsterList[r.monsters[0]];
         name += monster.name + " Area";
@@ -95,6 +97,16 @@ export class Cavern {
         name += "Room";
       }
       r.name = name;
+      r.purpose = purpose;
+
+      if (purpose) {
+        const purposedItems = Item.getItemsByPurpose(purpose);
+        for (const itemName of purposedItems) {
+          const item = Item.generate(r.id, window.cocRoomList);
+          item.name = itemName;
+          item.value = 0;
+        }
+      }
     });
 
     // Populate wandering monsters table for this cavern level

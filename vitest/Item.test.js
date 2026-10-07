@@ -48,4 +48,12 @@ describe('Item full coverage', () => {
     expect(window.cocItemList.length).toBeGreaterThan(0);
     expect(window.cocRoomList[0].contents.length).toBeGreaterThan(0);
   });
+
+  it('returns items given a room purpose and eliminates duplicates', () => {
+    Item.purposeItemsMap['Armory'] = ['sword', 'sword', 'shield'];
+    const items = Item.getItemsByPurpose('Armory');
+    expect(Array.isArray(items)).toBe(true);
+    const unique = [...new Set(items)];
+    expect(items.length).toEqual(unique.length);
+  });
 });
