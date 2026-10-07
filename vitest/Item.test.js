@@ -40,4 +40,12 @@ describe('Item full coverage', () => {
 
     expect(window.cocItemList.length).toBeGreaterThan(0);
   });
+
+  it('generates junk items successfully', () => {
+    window.cocRoomList = [{ id: 0, contents: [] }];
+    window.cocItemList = [];
+    Item.makeJunk(0, window.cocRoomList);
+    expect(window.cocItemList.length).toBeGreaterThan(0);
+    expect(window.cocRoomList[0].contents.length).toBeGreaterThan(0);
+  });
 });

@@ -111,6 +111,11 @@ export class Room {
       r.trap = Trap.get(cavern);
     }
 
+    // 25% of rooms will have at least one junk item
+    if (Dice.p(25)) {
+      Item.makeJunk(r.id, window.cocRoomList);
+    }
+
     return r;
   }
 
