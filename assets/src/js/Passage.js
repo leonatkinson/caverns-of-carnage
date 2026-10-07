@@ -61,6 +61,27 @@ export class Passage {
     p.startLocation = Passage.getLocation(cavern);
     p.endLocation = Passage.getLocation(cavern);
 
+    // Determine door details (open/closed, opening direction, hinges)
+    const startDetails = Passage.generateDoorDetails(p.startLocation);
+    p.startDoorOpen = startDetails.isOpen;
+    p.startDoorIsOpen = startDetails.open;
+    p.startDoorState = startDetails.state;
+    p.startDoorOpening = startDetails.opening;
+    p.startDoorOpeningDirection = startDetails.openingDirection;
+    p.startDoorHinges = startDetails.hinges;
+    p.startDoorHingeSide = startDetails.hingeSide;
+    p.startDoorDetails = startDetails;
+
+    const endDetails = Passage.generateDoorDetails(p.endLocation);
+    p.endDoorOpen = endDetails.isOpen;
+    p.endDoorIsOpen = endDetails.open;
+    p.endDoorState = endDetails.state;
+    p.endDoorOpening = endDetails.opening;
+    p.endDoorOpeningDirection = endDetails.openingDirection;
+    p.endDoorHinges = endDetails.hinges;
+    p.endDoorHingeSide = endDetails.hingeSide;
+    p.endDoorDetails = endDetails;
+
     // Level-based check for passage traps
     if (Dice.roll(1, 20) <= level) {
       p.trapped = true;
@@ -134,5 +155,33 @@ export class Passage {
       default:
         return "odot";
     }
+  }
+
+  /**
+   * Generates door state (open/closed), opening direction, and hinge placement.
+   * @param {string} location - Door location wall.
+   * @returns {Object} Door details object.
+   */
+  static generateDoorDetails(location) {
+    const isOpen = Dice.p(33);
+    const opening = Dice.p(50) ? "into the room" : "out of the room";
+    const loc = String(location).toLowerCase();
+    let hinges = "east";
+    if (loc.includes("north") || loc.includes("south")) {
+      hinges = Dice.p(50) ? "east" : "west";
+    } else if (loc.includes("east") || loc.includes("west")) {
+      hinges = Dice.p(50) ? "north" : "south";
+    } else {
+      hinges = Dice.p(50) ? "east" : "west";
+    }
+    return {
+      isOpen,
+      open: isOpen,
+      state: isOpen ? "open" : "closed",
+      opening,
+      openingDirection: opening,
+      hinges,
+      hingeSide: hinges,
+    };
   }
 }
