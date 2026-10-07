@@ -143,12 +143,15 @@ export class Manual {
   }
 
   /**
-   * Formats a door description with its type, location, state, swing, and hinges.
+   * Formats a door description according to the specified template.
    * @param {string} type - Door type.
    * @param {string} location - Door location.
    * @param {boolean} isOpen - Whether door is open.
    * @param {string} opening - Opening direction.
    * @param {string} hinges - Hinge placement.
+   * @param {number} targetRoomId - Target room number.
+   * @param {number} length - Passage length.
+   * @param {number} passageLight - Passage light level.
    * @returns {string} Formatted door description.
    */
   static getDoorDescription(
@@ -157,18 +160,33 @@ export class Manual {
     isOpen = false,
     opening = "into the room",
     hinges = "east",
+    targetRoomId = 1,
+    length = 10,
+    passageLight = 0,
   ) {
     const t = String(type).toLowerCase();
-    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+    const typeWords = type
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    const wallWords = location
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+
+    let lightStr = "dark";
+    if (passageLight > 0.1 && passageLight <= 0.9) lightStr = "dim";
+    else if (passageLight > 0.9) lightStr = "lighted";
+
     if (t === "open doorway") {
-      return "Open doorway on the " + location;
+      return `${typeWords} (${wallWords}): Leads to Room ${targetRoomId} via ${length}′ ${lightStr} passage.`;
     }
+
     const state = t === "secret door" ? "Closed" : isOpen ? "Open" : "Closed";
-    let desc = state + " " + capitalizedType + " on the " + location;
-    if (opening && hinges) {
-      desc += " swings " + opening + " with hinges on the " + hinges + " side";
-    }
-    return desc;
+    const dir = String(opening).toLowerCase().includes("in") ? "in" : "out";
+    const hingeSide = String(hinges).toLowerCase();
+
+    return `${typeWords} (${wallWords}): ${state}. Leads to Room ${targetRoomId} via ${length}′ ${lightStr} passage. Swings ${dir}, hinges ${hingeSide}.`;
   }
 
   /**
@@ -241,34 +259,37 @@ export class Manual {
         const passage = window.cocPassageList[passageId];
         if (!passage) return;
         let exit = "";
-        if (passage.start === room.id) {
-          exit =
-            Manual.getDoorDescription(
-              passage.startDoor,
-              passage.startLocation,
-              passage.startDoorOpen,
-              passage.startDoorOpening,
-              passage.startDoorHinges,
-            ) +
-            " to Room " +
-            (passage.end + 1);
-        } else {
-          exit =
-            Manual.getDoorDescription(
-              passage.endDoor,
-              passage.endLocation,
-              passage.endDoorOpen,
-              passage.endDoorOpening,
-              passage.endDoorHinges,
-            ) +
-            " to Room " +
-            (passage.start + 1);
-        }
-        exit += " via " + passage.length + "′ ";
-        let light = "dark";
-        if (passage.light > 0.1 && passage.light <= 0.9) light = "dim";
-        else if (passage.light > 0.9) light = "lighted";
-        exit += light + " passage";
+        const targetRoomNum =
+          passage.start === room.id ? passage.end + 1 : passage.start + 1;
+        const doorType =
+          passage.start === room.id ? passage.startDoor : passage.endDoor;
+        const location =
+          passage.start === room.id
+            ? passage.startLocation
+            : passage.endLocation;
+        const isOpen =
+          passage.start === room.id
+            ? passage.startDoorOpen
+            : passage.endDoorOpen;
+        const opening =
+          passage.start === room.id
+            ? passage.startDoorOpening
+            : passage.endDoorOpening;
+        const hinges =
+          passage.start === room.id
+            ? passage.startDoorHinges
+            : passage.endDoorHinges;
+
+        exit = Manual.getDoorDescription(
+          doorType,
+          location,
+          isOpen,
+          opening,
+          hinges,
+          targetRoomNum,
+          passage.length,
+          passage.light,
+        );
         if (passage.trapped) {
           exit += " -- Trapped: " + passage.trap;
         }

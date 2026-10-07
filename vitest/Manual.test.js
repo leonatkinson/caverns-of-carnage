@@ -35,8 +35,8 @@ describe('Manual', () => {
   });
 
   it('gets door description', () => {
-    const desc = Manual.getDoorDescription('archway', 'north wall', false, 'into the room', 'east');
-    expect(desc).toContain('Archway on the north wall');
+    const desc = Manual.getDoorDescription('door', 'south wall', true, 'into the room', 'west', 2, 65, 0);
+    expect(desc).toBe('Door (South Wall): Open. Leads to Room 2 via 65′ dark passage. Swings in, hinges west.');
   });
 
   it('gets HTML for manual with wandering monsters and rooms', () => {
